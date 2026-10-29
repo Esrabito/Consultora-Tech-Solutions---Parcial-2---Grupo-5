@@ -1,0 +1,20 @@
+# Entorno virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secretos y configuración local (nunca se suben)
+.env
+
+# Base de datos local y archivos generados por la app
+instance/
+*.db
+logs/
+
+# Editor / sistema operativo
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+/* Ajustes propios sobre Bootstrap */
+
+.navbar .btn-link.nav-link {
+  border: 0;
+  text-decoration: none;
+}
+
+.card-title .bi {
+  color: var(--bs-primary);
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}

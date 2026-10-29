@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block titulo %}Error del servidor{% endblock %}
+
+{% block contenido %}
+<div class="text-center py-5">
+  <h1 class="display-5">500</h1>
+  <p class="lead">Ocurrió un error inesperado. Probá de nuevo en unos minutos.</p>
+  <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
+</div>
+{% endblock %}
