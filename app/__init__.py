@@ -40,6 +40,7 @@ def _validar_configuracion(app):
 
 
 def _registrar_blueprints(app):
+    from app.routes.api import api_bp
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
     from app.routes.web_admin import admin_bp
@@ -47,6 +48,10 @@ def _registrar_blueprints(app):
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+
+    # La API se protege exigiendo JSON (ver app/routes/api.py), no con token CSRF.
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
 
 
 def _es_pedido_api():

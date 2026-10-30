@@ -6,19 +6,25 @@
 <h1 class="h3 mb-4"><i class="bi bi-speedometer2"></i> Panel de administración</h1>
 
 <div class="row g-3">
-  {# Cada módulo se habilita a medida que se completa su historia de usuario. #}
+  {# Cada módulo se habilita cuando su historia de usuario está implementada (ruta = None: en desarrollo). #}
   {% set modulos = [
-    ("Servicios", "bi-tools", "Catálogo de servicios de la consultora (HU-07)."),
-    ("Planes", "bi-box-seam", "Planes comerciales y servicios incluidos (HU-06)."),
-    ("Clientes", "bi-people", "Clientes registrados y su detalle (HU-32 / HU-04)."),
+    ("Servicios", "bi-tools", "Catálogo de servicios de la consultora (HU-07).", "admin.listar_servicios"),
+    ("Planes", "bi-box-seam", "Planes comerciales y servicios incluidos (HU-06).", None),
+    ("Clientes", "bi-people", "Clientes registrados y su detalle (HU-32 / HU-04).", None),
   ] %}
-  {% for nombre, icono, descripcion in modulos %}
+  {% for nombre, icono, descripcion, ruta in modulos %}
     <div class="col-12 col-md-4">
       <div class="card h-100 shadow-sm">
-        <div class="card-body">
+        <div class="card-body d-flex flex-column">
           <h2 class="h5 card-title"><i class="bi {{ icono }}"></i> {{ nombre }}</h2>
           <p class="card-text text-muted">{{ descripcion }}</p>
-          <span class="badge text-bg-secondary">En desarrollo</span>
+          <div class="mt-auto">
+            {% if ruta %}
+              <a href="{{ url_for(ruta) }}" class="btn btn-primary">Gestionar</a>
+            {% else %}
+              <span class="badge text-bg-secondary">En desarrollo</span>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

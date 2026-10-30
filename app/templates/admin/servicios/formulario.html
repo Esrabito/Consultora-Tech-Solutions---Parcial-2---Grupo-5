@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% set es_edicion = servicio is not none %}
+{% set titulo_pagina = "Editar servicio" if es_edicion else "Nuevo servicio" %}
+
+{% block titulo %}{{ titulo_pagina }}{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.listar_servicios') }}">Servicios</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ titulo_pagina }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">{{ titulo_pagina }}</h1>
+
+        {% if errores.general %}
+          <div class="alert alert-danger">{{ errores.general }}</div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label for="tipo_servicio" class="form-label">Tipo de servicio</label>
+            <input type="text" id="tipo_servicio" name="tipo_servicio"
+                   class="form-control {% if errores.tipo_servicio %}is-invalid{% endif %}"
+                   value="{{ datos.get('tipo_servicio', '') }}"
+                   maxlength="100" placeholder="Ej.: Consultoría en finanzas" required autofocus>
+            {% if errores.tipo_servicio %}
+              <div class="invalid-feedback">{{ errores.tipo_servicio }}</div>
+            {% else %}
+              <div class="form-text">Entre 3 y 100 caracteres. No puede repetirse.</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg"></i> Guardar
+            </button>
+            <a href="{{ url_for('admin.listar_servicios') }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
