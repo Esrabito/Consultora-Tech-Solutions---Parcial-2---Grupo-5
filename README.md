@@ -84,7 +84,7 @@ run.py              punto de entrada
 
 | HU | Nombre | SP | Estado |
 |---|---|---|---|
-| HU-07 | Gestionar servicios | 6 | Pendiente |
+| HU-07 | Gestionar servicios | 6 | En testing (la regla de baja con planes se completa con HU-06) |
 | HU-06 | Gestionar planes | 6 | Pendiente |
 | HU-30 | Seleccionar plan en el registro | 1 | Pendiente |
 | HU-01 | Registrar cliente | 6 | Pendiente |
@@ -96,3 +96,26 @@ run.py              punto de entrada
 | HU-05 | Consultar planes y servicios contratados | 2 | Pendiente |
 
 Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
+
+## Endpoints
+
+### Pantallas del administrador
+
+| Ruta | Descripción | HU |
+|---|---|---|
+| `GET /admin/servicios` | Listado de servicios | HU-07 |
+| `GET/POST /admin/servicios/nuevo` | Alta de servicio | HU-07 |
+| `GET/POST /admin/servicios/<id>/editar` | Modificación de servicio | HU-07 |
+| `POST /admin/servicios/<id>/eliminar` | Baja de servicio | HU-07 |
+
+### API REST (requiere sesión de administrador y `Content-Type: application/json`)
+
+| Método | Ruta | Respuestas |
+|---|---|---|
+| `GET` | `/api/servicios` | 200 |
+| `POST` | `/api/servicios` | 201, 400, 409 |
+| `GET` | `/api/servicios/<id>` | 200, 404 |
+| `PUT` | `/api/servicios/<id>` | 200, 400, 404, 409 |
+| `DELETE` | `/api/servicios/<id>` | 204, 404, 409 |
+
+Ejemplo de cuerpo: `{"tipo_servicio": "Consultoría en finanzas"}`
