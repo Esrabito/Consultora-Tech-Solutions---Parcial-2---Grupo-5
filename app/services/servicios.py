@@ -1,10 +1,9 @@
 """Reglas de negocio de los servicios (HU-07 / CU-15 Gestionar servicios)."""
 
-from sqlalchemy.exc import IntegrityError
-
 from app.extensions import db
 from app.models import Servicio
-from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
+from app.services.comun import guardar_cambios, mismo_texto, texto_obligatorio
+from app.services.errores import Conflicto, NoEncontrado
 
 LARGO_MINIMO_TIPO = 3
 LARGO_MAXIMO_TIPO = 100
@@ -28,7 +27,7 @@ def crear_servicio(datos):
 
     servicio = Servicio(tipo_servicio=tipo)
     db.session.add(servicio)
-    _guardar()
+    guardar_cambios()
     return servicio
 
 
@@ -38,50 +37,33 @@ def actualizar_servicio(id_servicio, datos):
     _verificar_tipo_disponible(tipo, excluir_id=servicio.id_servicio)
 
     servicio.tipo_servicio = tipo
-    _guardar()
+    guardar_cambios()
     return servicio
 
 
 def eliminar_servicio(id_servicio):
     servicio = obtener_servicio(id_servicio)
+
+    # CU-15 E2: un servicio incluido en algún plan no se puede eliminar.
+    if servicio.planes:
+        nombres = ", ".join(plan.nombre_plan for plan in servicio.planes)
+        raise Conflicto(
+            f"No se puede eliminar el servicio porque está incluido en estos planes: {nombres}. "
+            "Primero quitalo de esos planes."
+        )
+
     db.session.delete(servicio)
-    _guardar()
+    guardar_cambios()
 
 
 def _validar_tipo(datos):
-    valor = datos.get("tipo_servicio")
-    if valor is not None and not isinstance(valor, str):
-        raise DatosInvalidos({"tipo_servicio": "El tipo de servicio debe ser un texto."})
-
-    # Sacamos espacios de más para que "  Legal   " y "Legal" sean lo mismo.
-    tipo = " ".join((valor or "").split())
-
-    if not tipo:
-        raise DatosInvalidos({"tipo_servicio": "El tipo de servicio es obligatorio."})
-    if not LARGO_MINIMO_TIPO <= len(tipo) <= LARGO_MAXIMO_TIPO:
-        raise DatosInvalidos(
-            {
-                "tipo_servicio": (
-                    f"El tipo de servicio debe tener entre {LARGO_MINIMO_TIPO} "
-                    f"y {LARGO_MAXIMO_TIPO} caracteres."
-                )
-            }
-        )
-    return tipo
+    return texto_obligatorio(
+        datos, "tipo_servicio", "El tipo de servicio", LARGO_MINIMO_TIPO, LARGO_MAXIMO_TIPO
+    )
 
 
 def _verificar_tipo_disponible(tipo, excluir_id=None):
-    # Comparamos en Python con casefold() porque lower() de SQLite no maneja tildes
-    # ("CONSULTORÍA" vs "consultoría"). El catálogo es chico, así que no pesa.
-    buscado = tipo.casefold()
+    # El catálogo es chico, así que recorrerlo entero no pesa.
     for servicio in listar_servicios():
-        if servicio.id_servicio != excluir_id and servicio.tipo_servicio.casefold() == buscado:
+        if servicio.id_servicio != excluir_id and mismo_texto(servicio.tipo_servicio, tipo):
             raise Conflicto("Ya existe un servicio con ese tipo.", campo="tipo_servicio")
-
-
-def _guardar():
-    try:
-        db.session.commit()
-    except IntegrityError as error:
-        db.session.rollback()
-        raise Conflicto("No se pudo guardar: el dato ya existe o está en uso.") from error

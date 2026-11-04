@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import planes as planes_service
 from app.services import servicios as servicios_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado, errores_para_formulario
 
@@ -81,4 +82,95 @@ def _formulario_servicio(datos, errores=None, servicio=None):
         datos=datos,
         errores=errores or {},
         servicio=servicio,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HU-06 Gestionar planes (CU-14)
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/planes")
+@admin_requerido
+def listar_planes():
+    planes = planes_service.listar_planes()
+    return render_template("admin/planes/lista.html", planes=planes)
+
+
+@admin_bp.route("/planes/nuevo", methods=["GET", "POST"])
+@admin_requerido
+def nuevo_plan():
+    if request.method == "POST":
+        datos = _datos_del_formulario_plan()
+        try:
+            plan = planes_service.crear_plan(datos)
+        except (DatosInvalidos, Conflicto) as error:
+            return _formulario_plan(datos, errores_para_formulario(error)), 400
+
+        flash(f'Plan "{plan.nombre_plan}" creado correctamente.', "success")
+        return redirect(url_for("admin.listar_planes"))
+
+    return _formulario_plan({})
+
+
+@admin_bp.route("/planes/<int:id_plan>/editar", methods=["GET", "POST"])
+@admin_requerido
+def editar_plan(id_plan):
+    try:
+        plan = planes_service.obtener_plan(id_plan)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_planes"))
+
+    if request.method == "POST":
+        datos = _datos_del_formulario_plan()
+        try:
+            planes_service.actualizar_plan(id_plan, datos)
+        except (DatosInvalidos, Conflicto) as error:
+            return _formulario_plan(datos, errores_para_formulario(error), plan), 400
+
+        flash("Plan actualizado correctamente.", "success")
+        return redirect(url_for("admin.listar_planes"))
+
+    datos = {
+        "nombre_plan": plan.nombre_plan,
+        "valor_plan": str(plan.valor_plan).replace(".", ","),
+        "servicios": [servicio.id_servicio for servicio in plan.servicios],
+    }
+    return _formulario_plan(datos, plan=plan)
+
+
+@admin_bp.post("/planes/<int:id_plan>/eliminar")
+@admin_requerido
+def eliminar_plan(id_plan):
+    try:
+        planes_service.eliminar_plan(id_plan)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+    except Conflicto as error:
+        flash(error.mensaje, "danger")
+    else:
+        flash("Plan eliminado correctamente.", "success")
+    return redirect(url_for("admin.listar_planes"))
+
+
+def _datos_del_formulario_plan():
+    # Los servicios llegan como varias casillas con el mismo nombre, por eso getlist().
+    return {
+        "nombre_plan": request.form.get("nombre_plan"),
+        "valor_plan": request.form.get("valor_plan"),
+        "servicios": request.form.getlist("servicios"),
+    }
+
+
+def _formulario_plan(datos, errores=None, plan=None):
+    # Pasamos los ids como texto para comparar igual lo que viene del formulario y de la base.
+    seleccionados = {str(id_servicio) for id_servicio in datos.get("servicios", [])}
+    return render_template(
+        "admin/planes/formulario.html",
+        datos=datos,
+        errores=errores or {},
+        plan=plan,
+        servicios=servicios_service.listar_servicios(),
+        seleccionados=seleccionados,
     )

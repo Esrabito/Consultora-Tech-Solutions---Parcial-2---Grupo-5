@@ -20,6 +20,7 @@ def create_app(config_class=Config):
 
     _registrar_blueprints(app)
     _registrar_manejadores_de_error(app)
+    app.add_template_filter(formato_moneda, "moneda")
 
     with app.app_context():
         from app import models  # noqa: F401  (registra los modelos antes de crear las tablas)
@@ -52,6 +53,12 @@ def _registrar_blueprints(app):
     # La API se protege exigiendo JSON (ver app/routes/api.py), no con token CSRF.
     csrf.exempt(api_bp)
     app.register_blueprint(api_bp)
+
+
+def formato_moneda(valor):
+    """Muestra un importe como en Argentina: 15000.5 -> "$ 15.000,50"."""
+    con_comas = f"{valor:,.2f}"  # "15,000.50"
+    return "$ " + con_comas.replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def _es_pedido_api():

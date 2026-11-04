@@ -8,6 +8,7 @@ desde otro sitio sin permiso explícito (CORS), así que el riesgo queda cubiert
 from flask import Blueprint, abort, jsonify, request, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import planes as planes_service
 from app.services import servicios as servicios_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
@@ -52,6 +53,47 @@ def actualizar_servicio(id_servicio):
 @admin_requerido
 def eliminar_servicio(id_servicio):
     servicios_service.eliminar_servicio(id_servicio)
+    return "", 204
+
+
+# ---------------------------------------------------------------------------
+# HU-06 Gestionar planes
+# ---------------------------------------------------------------------------
+
+
+@api_bp.get("/planes")
+@admin_requerido
+def listar_planes():
+    return jsonify([plan.a_dict() for plan in planes_service.listar_planes()])
+
+
+@api_bp.post("/planes")
+@admin_requerido
+def crear_plan():
+    plan = planes_service.crear_plan(_leer_json())
+    respuesta = jsonify(plan.a_dict())
+    respuesta.status_code = 201
+    respuesta.headers["Location"] = url_for("api.obtener_plan", id_plan=plan.id_plan)
+    return respuesta
+
+
+@api_bp.get("/planes/<int:id_plan>")
+@admin_requerido
+def obtener_plan(id_plan):
+    return jsonify(planes_service.obtener_plan(id_plan).a_dict())
+
+
+@api_bp.put("/planes/<int:id_plan>")
+@admin_requerido
+def actualizar_plan(id_plan):
+    plan = planes_service.actualizar_plan(id_plan, _leer_json())
+    return jsonify(plan.a_dict())
+
+
+@api_bp.delete("/planes/<int:id_plan>")
+@admin_requerido
+def eliminar_plan(id_plan):
+    planes_service.eliminar_plan(id_plan)
     return "", 204
 
 

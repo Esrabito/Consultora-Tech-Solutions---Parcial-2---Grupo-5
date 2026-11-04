@@ -9,7 +9,7 @@
   {# Cada módulo se habilita cuando su historia de usuario está implementada (ruta = None: en desarrollo). #}
   {% set modulos = [
     ("Servicios", "bi-tools", "Catálogo de servicios de la consultora (HU-07).", "admin.listar_servicios"),
-    ("Planes", "bi-box-seam", "Planes comerciales y servicios incluidos (HU-06).", None),
+    ("Planes", "bi-box-seam", "Planes comerciales y servicios incluidos (HU-06).", "admin.listar_planes"),
     ("Clientes", "bi-people", "Clientes registrados y su detalle (HU-32 / HU-04).", None),
   ] %}
   {% for nombre, icono, descripcion, ruta in modulos %}

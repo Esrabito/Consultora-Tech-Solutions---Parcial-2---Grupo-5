@@ -13,3 +13,9 @@
 .table th {
   vertical-align: middle;
 }
+
+/* Si el catálogo de servicios es largo, la lista del formulario de planes scrollea */
+.lista-servicios {
+  max-height: 16rem;
+  overflow-y: auto;
+}
