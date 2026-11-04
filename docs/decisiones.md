@@ -36,6 +36,16 @@ o si queda como suposición a confirmar.
 | 9 | Falla de CRMMax | Se cancela el registro y se informa el error (Secuencia 2) | REQUISITO | Aprobada |
 | 10 | Persistencia | SQLite + SQLAlchemy; se puede migrar a PostgreSQL cambiando `DATABASE_URL` | DECISIÓN TÉCNICA | Aprobada |
 
+## Decisiones de HU-06 Gestionar planes
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Valor del plan | Mayor que 0, con hasta 2 decimales y un máximo de $ 99.999.999,99. Se guarda como decimal exacto, no como flotante | REQUISITO (mayor que 0) / DECISIÓN TÉCNICA (resto) |
+| Formato del valor | Se acepta "15000", "15000,50", "15.000" y "15.000,50". Se muestra como "$ 15.000,50" | DECISIÓN TÉCNICA |
+| Nombre del plan | Entre 3 y 100 caracteres, único sin importar mayúsculas ni tildes (igual que los servicios) | REQUISITO (único) / DECISIÓN TÉCNICA (largo) |
+| Relación plan–servicio | Tabla `plan_servicio` (N:M "Incluye" del DER). Al borrar un plan se borran sus filas; un servicio que está en un plan no se puede borrar (CU-15 E2) | REQUISITO |
+| Plan con clientes | No se puede eliminar (CU-14 E2). Se implementa con HU-01, cuando exista el modelo Cliente | REQUISITO |
+
 ## Planificación
 
 | Tema | Decisión |

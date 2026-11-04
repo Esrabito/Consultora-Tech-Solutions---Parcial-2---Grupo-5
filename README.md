@@ -84,8 +84,8 @@ run.py              punto de entrada
 
 | HU | Nombre | SP | Estado |
 |---|---|---|---|
-| HU-07 | Gestionar servicios | 6 | En testing (la regla de baja con planes se completa con HU-06) |
-| HU-06 | Gestionar planes | 6 | Pendiente |
+| HU-07 | Gestionar servicios | 6 | En testing |
+| HU-06 | Gestionar planes | 6 | En testing (la regla de baja con clientes se completa con HU-01) |
 | HU-30 | Seleccionar plan en el registro | 1 | Pendiente |
 | HU-01 | Registrar cliente | 6 | Pendiente |
 | HU-25 | Validar identidad (VeriCheck) | 3 | Pendiente |
@@ -106,7 +106,11 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/servicios` | Listado de servicios | HU-07 |
 | `GET/POST /admin/servicios/nuevo` | Alta de servicio | HU-07 |
 | `GET/POST /admin/servicios/<id>/editar` | Modificación de servicio | HU-07 |
-| `POST /admin/servicios/<id>/eliminar` | Baja de servicio | HU-07 |
+| `POST /admin/servicios/<id>/eliminar` | Baja de servicio (no se puede si está en un plan) | HU-07 |
+| `GET /admin/planes` | Listado de planes con sus servicios | HU-06 |
+| `GET/POST /admin/planes/nuevo` | Alta de plan | HU-06 |
+| `GET/POST /admin/planes/<id>/editar` | Modificación de plan | HU-06 |
+| `POST /admin/planes/<id>/eliminar` | Baja de plan | HU-06 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
@@ -116,6 +120,22 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `POST` | `/api/servicios` | 201, 400, 409 |
 | `GET` | `/api/servicios/<id>` | 200, 404 |
 | `PUT` | `/api/servicios/<id>` | 200, 400, 404, 409 |
-| `DELETE` | `/api/servicios/<id>` | 204, 404, 409 |
+| `DELETE` | `/api/servicios/<id>` | 204, 404, 409 (está incluido en un plan) |
+| `GET` | `/api/planes` | 200 |
+| `POST` | `/api/planes` | 201, 400, 409 |
+| `GET` | `/api/planes/<id>` | 200, 404 |
+| `PUT` | `/api/planes/<id>` | 200, 400, 404, 409 |
+| `DELETE` | `/api/planes/<id>` | 204, 404 |
 
-Ejemplo de cuerpo: `{"tipo_servicio": "Consultoría en finanzas"}`
+Ejemplos de cuerpo:
+
+```json
+{"tipo_servicio": "Consultoría en finanzas"}
+```
+
+```json
+{"nombre_plan": "Plan Empresa", "valor_plan": 25000.50, "servicios": [1, 3]}
+```
+
+`servicios` es la lista de `id_servicio` que incluye el plan (al menos uno).
+`valor_plan` puede ir como número o como texto (`"25.000,50"`).
