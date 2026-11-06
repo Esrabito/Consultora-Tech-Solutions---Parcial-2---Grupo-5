@@ -33,6 +33,7 @@ class Cliente(db.Model):
     def a_dict(self):
         return {
             "id_cliente": self.id_cliente,
+            "dni": self.dni,
             "nombre": self.nombre,
             "email": self.email,
             "telefono": self.telefono,
