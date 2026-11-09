@@ -11,6 +11,7 @@ from app.routes.auth import admin_requerido
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
 from app.services import validacion
+from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -100,14 +101,11 @@ def eliminar_plan(id_plan):
 # ---------------------------------------------------------------------------
 # HU-25 Validar identidad
 # ---------------------------------------------------------------------------
-
-
 @api_bp.post("/validaciones")
+@admin_requerido
 def validar_identidad():
-    """Valida los datos personales de un cliente con VeriCheck (HU-25 / CU-1)."""
-    datos = _leer_json()
-    resultado = validacion.validar_identidad(datos)
-    return jsonify(resultado), 200
+    return jsonify(validacion_service.validar_identidad(_leer_json()))
+
 
 # ---------------------------------------------------------------------------
 # Utilidades y manejo de errores
