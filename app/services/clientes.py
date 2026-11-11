@@ -70,3 +70,40 @@ def _validar(datos):
         raise DatosInvalidos(errores)
     return valores
 
+# ---------------------------------------------------------------------------
+# HU-05 / HU-03: identificación del cliente (CU-9, decisión 4)
+# ---------------------------------------------------------------------------
+
+# Es el mismo mensaje si falla el DNI, el email o los dos: así no se le revela a
+# un tercero si un DNI o un email están registrados.
+MENSAJE_IDENTIFICACION = "Los datos ingresados no coinciden con un cliente registrado."
+
+
+def identificar_cliente(datos):
+    """Busca al cliente por DNI y email, sin contraseña (CU-9, decisión 4).
+
+    Devuelve el Cliente. Lanza DatosInvalidos si falta algún dato o si no hay un
+    cliente que coincida con los dos.
+    """
+    dni = _texto(datos.get("dni"))
+    email = _texto(datos.get("email")).lower()
+
+    errores = {}
+    if not dni:
+        errores["dni"] = "El DNI es obligatorio."
+    if not email:
+        errores["email"] = "El email es obligatorio."
+    if errores:
+        raise DatosInvalidos(errores)
+
+    cliente = db.session.execute(
+        db.select(Cliente).filter_by(dni=dni, email=email)
+    ).scalar_one_or_none()
+    if cliente is None:
+        raise DatosInvalidos({"general": MENSAJE_IDENTIFICACION})
+    return cliente
+
+
+def _texto(valor):
+    """Devuelve el texto sin espacios de más, o "" si no es un texto."""
+    return valor.strip() if isinstance(valor, str) else ""
