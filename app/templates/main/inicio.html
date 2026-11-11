@@ -4,21 +4,60 @@
 
 {% block contenido %}
 <div class="p-4 p-md-5 mb-4 bg-body-tertiary rounded-3 border">
-  <h1 class="display-6 fw-semibold">Gestión de Servicios Profesionales</h1>
+  <h1 class="display-6 fw-semibold">
+    Gestión de Servicios Profesionales
+  </h1>
+
   <p class="lead mb-0">
-    Consultá tus servicios contratados, tu plan y tus gestiones con Tech Solutions.
+    Consultá tus servicios contratados, tu plan y tus gestiones con Tech
+    Solutions.
   </p>
 </div>
 
 <div class="row g-3">
+
+  <!-- Administración -->
   <div class="col-12 col-md-6">
     <div class="card h-100 shadow-sm">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-shield-lock"></i> Administración</h2>
-        <p class="card-text text-muted">Gestión de servicios, planes y clientes.</p>
-        <a href="{{ url_for('admin.inicio') }}" class="btn btn-primary">Ingresar</a>
+        <h2 class="h5 card-title">
+          <i class="bi bi-shield-lock"></i>
+          Administración
+        </h2>
+
+        <p class="card-text text-muted">
+          Gestión de servicios, planes y clientes.
+        </p>
+
+        <a href="{{ url_for('admin.inicio') }}"
+           class="btn btn-primary">
+          Ingresar
+        </a>
       </div>
     </div>
   </div>
+
+
+  <div class="col-12 col-md-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 card-title">
+          <i class="bi bi-person-plus"></i>
+          Registro de Cliente
+        </h2>
+
+        <p class="card-text text-muted">
+          Registrate en el sistema, cargá tus datos personales y seleccioná
+          un plan para acceder a los servicios de la consultora.
+        </p>
+
+        <a href="{{ url_for('cliente.registro') }}"
+           class="btn btn-success">
+          Registrarme
+        </a>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

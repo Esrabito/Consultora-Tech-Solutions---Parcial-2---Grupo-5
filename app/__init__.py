@@ -45,10 +45,12 @@ def _registrar_blueprints(app):
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
     from app.routes.web_admin import admin_bp
+    from app.routes.web_cliente import cliente_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(cliente_bp)
 
     # La API se protege exigiendo JSON (ver app/routes/api.py), no con token CSRF.
     csrf.exempt(api_bp)
