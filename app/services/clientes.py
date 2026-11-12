@@ -5,6 +5,7 @@ import re
 from app.extensions import db
 from app.models import Cliente, Plan
 from app.services.comun import guardar_cambios
+from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 from app.services.errores import Conflicto, DatosInvalidos
 
 
@@ -103,6 +104,12 @@ def identificar_cliente(datos):
         raise DatosInvalidos({"general": MENSAJE_IDENTIFICACION})
     return cliente
 
+def obtener_cliente(id_cliente):
+    """Devuelve el cliente con ese id o lanza NoEncontrado."""
+    cliente = db.session.get(Cliente, id_cliente)
+    if cliente is None:
+        raise NoEncontrado("El cliente no existe.")
+    return cliente
 
 def _texto(valor):
     """Devuelve el texto sin espacios de más, o "" si no es un texto."""
