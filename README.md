@@ -46,6 +46,18 @@ python run.py
 
 La aplicación queda en <http://127.0.0.1:5000>. La base de datos se crea sola en `instance/`.
 
+### Datos de ejemplo
+
+Para probar o hacer la demo sin cargar todo a mano:
+
+```powershell
+flask --app run semilla
+```
+
+Carga 4 servicios, 3 planes y 3 clientes. Si la base ya tiene datos no toca nada;
+con `flask --app run semilla --reiniciar` los borra y vuelve a cargar los de ejemplo.
+La clienta "Carla Prueba" tiene DNI `11111111`, que VeriCheck rechaza: sirve para mostrar el caso de error.
+
 ## Pruebas
 
 ```powershell
@@ -84,16 +96,17 @@ run.py              punto de entrada
 
 | HU | Nombre | SP | Estado |
 |---|---|---|---|
-| HU-07 | Gestionar servicios | 6 | En testing |
-| HU-06 | Gestionar planes | 6 | En testing (la regla de baja con clientes se completa con HU-01) |
-| HU-30 | Seleccionar plan en el registro | 1 | Pendiente |
-| HU-01 | Registrar cliente | 6 | Pendiente |
-| HU-25 | Validar identidad (VeriCheck) | 3 | En testing (se integra con el registro en HU-01) |
-| HU-31 | Registrar clientes en CRMMax | 2 | Pendiente |
-| HU-32 | Consultar clientes registrados | 1 | Pendiente |
-| HU-04 | Gestionar clientes registrados | 8 | Pendiente |
-| HU-03 | Consultar información personal | 2 | Pendiente |
-| HU-05 | Consultar planes y servicios contratados | 2 | Pendiente |
+| HU-07 | Gestionar servicios | 6 | Hecha |
+| HU-06 | Gestionar planes | 6 | En testing |
+| HU-01 | Registrar cliente (con elección de plan) | 6 | En testing (falta integrar VeriCheck y CRMMax en el registro) |
+| HU-25 | Validar identidad (VeriCheck) | 3 | Hecha |
+| HU-30 | Registrar clientes en CRMMax | 2 | Pendiente |
+| HU-31 | Consultar clientes registrados | 1 | En testing |
+| HU-04 | Gestionar clientes registrados (detalle) | 8 | En testing |
+| HU-03 | Consultar información personal | 2 | En testing |
+| HU-05 | Consultar planes y servicios contratados | 2 | En testing |
+
+> La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 
 Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 
@@ -110,7 +123,12 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/planes` | Listado de planes con sus servicios | HU-06 |
 | `GET/POST /admin/planes/nuevo` | Alta de plan | HU-06 |
 | `GET/POST /admin/planes/<id>/editar` | Modificación de plan | HU-06 |
-| `POST /admin/planes/<id>/eliminar` | Baja de plan | HU-06 |
+| `POST /admin/planes/<id>/eliminar` | Baja de plan (no se puede si tiene clientes) | HU-06 |
+| `GET /admin/clientes` | Listado de clientes registrados con su plan | HU-31 |
+| `GET /admin/clientes/<id>` | Detalle del cliente (solo lectura) | HU-04 |
+| `POST /admin/clientes/<id>/validar` | Valida la identidad del cliente con VeriCheck | HU-25 |
+| `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
+| `GET/POST /cliente/ingresar`, `GET /cliente/mi-plan` | Ingreso del cliente y consulta de su plan | HU-03 / HU-05 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
@@ -125,7 +143,9 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `POST` | `/api/planes` | 201, 400, 409 |
 | `GET` | `/api/planes/<id>` | 200, 404 |
 | `PUT` | `/api/planes/<id>` | 200, 400, 404, 409 |
-| `DELETE` | `/api/planes/<id>` | 204, 404 |
+| `DELETE` | `/api/planes/<id>` | 204, 404, 409 (tiene clientes) |
+| `GET` | `/api/clientes` | 200 |
+| `GET` | `/api/clientes/<id>` | 200, 404 |
 | `POST` | `/api/validaciones` | 200, 400 |
 Ejemplos de cuerpo:
 

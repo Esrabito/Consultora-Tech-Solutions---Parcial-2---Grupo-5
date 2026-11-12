@@ -44,7 +44,7 @@ o si queda como suposición a confirmar.
 | Formato del valor | Se acepta "15000", "15000,50", "15.000" y "15.000,50". Se muestra como "$ 15.000,50" | DECISIÓN TÉCNICA |
 | Nombre del plan | Entre 3 y 100 caracteres, único sin importar mayúsculas ni tildes (igual que los servicios) | REQUISITO (único) / DECISIÓN TÉCNICA (largo) |
 | Relación plan–servicio | Tabla `plan_servicio` (N:M "Incluye" del DER). Al borrar un plan se borran sus filas; un servicio que está en un plan no se puede borrar (CU-15 E2) | REQUISITO |
-| Plan con clientes | No se puede eliminar (CU-14 E2). Se implementa con HU-01, cuando exista el modelo Cliente | REQUISITO |
+| Plan con clientes | No se puede eliminar (CU-14 E2); el sistema informa cuántos clientes tiene. Además la base lo impide con la clave foránea (`ondelete="RESTRICT"`) | REQUISITO |
 
 ## Decisiones de HU-25 Validar identidad
 
@@ -58,6 +58,15 @@ o si queda como suposición a confirmar.
 | Acceso | El endpoint `POST /api/validaciones` es solo para el administrador (HU-25). El registro de clientes no usa el endpoint: llama directamente al service `validar_identidad` | REQUISITO (HU-25) / DECISIÓN TÉCNICA (uso desde el registro) |
 | Registro de la llamada | Cada validación queda en el log con el DNI enmascarado (`*****678`), como indica la decisión 3 (CU-18) | DECISIÓN TÉCNICA |
 | Uso desde el registro (HU-01) | Si el resultado es NO_VALIDADO, se muestra el motivo en pantalla (excepción E2 del CU-2). Se completa con HU-01 | REQUISITO |
+
+## Decisiones de HU-31 Consultar clientes / HU-04 Gestionar clientes
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Alcance | El panel solo consulta: listado y detalle del cliente. No se edita ni se elimina, porque CU-13 es de solo lectura | REQUISITO (CU-13) |
+| Detalle | Muestra datos personales, plan contratado con su valor y sus servicios. Solicitudes y reclamos figuran como "sin registros" hasta que se implementen sus épicas | REQUISITO (HU-04) / DECISIÓN TÉCNICA |
+| Validación desde el detalle | El administrador puede validar la identidad del cliente con VeriCheck desde el detalle y ve el resultado (HU-25). No se guarda el resultado en la base | REQUISITO (HU-25) |
+| Numeración de HU | Se sigue la del Trello del 12/11: HU-30 CRMMax, HU-31 Consultar clientes. "Seleccionar plan" quedó dentro de HU-01 | REQUISITO (Trello) |
 
 ## Planificación
 
