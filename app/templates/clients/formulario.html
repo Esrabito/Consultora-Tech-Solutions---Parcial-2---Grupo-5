@@ -3,189 +3,194 @@
 {% block titulo %}Registro de cliente{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('main.inicio') }}">Inicio</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-      Registro
-    </li>
-  </ol>
-</nav>
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('main.inicio') }}">Inicio</a></li>
+        <li><span aria-current="page">Registro</span></li>
+      </ul>
+    </nav>
+    <h1>Registro de cliente</h1>
+    <p class="page-head__lead">
+      Completá tus datos personales y elegí el plan que querés contratar.
+    </p>
+  </div>
+</header>
 
-<div class="row justify-content-center">
-  <div class="col-12 col-md-10 col-lg-8">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
+<div class="form-layout">
+  <div class="form-sheet">
+    {% if errores.general %}
+      <div class="notice notice--warning mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill notice__icon" aria-hidden="true"></i>
+        <p>{{ errores.general }}</p>
+      </div>
+    {% endif %}
 
-        <h1 class="h4 mb-3">Registro de cliente</h1>
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <p class="text-muted mb-4">
-          Completá tus datos personales y seleccioná un plan para acceder
-          a los servicios de la consultora.
-        </p>
+      <fieldset>
+        <legend>Datos personales</legend>
 
-        {% if errores.general %}
-          <div class="alert alert-danger">
-            {{ errores.general }}
-          </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-
-          <input type="hidden"
-                 name="csrf_token"
-                 value="{{ csrf_token() }}">
-
-          <div class="row g-3">
-
-            <!-- DNI -->
-            <div class="col-md-6">
-              <label for="dni" class="form-label">
-                DNI
-              </label>
-
-              <input
-                type="text"
-                id="dni"
-                name="dni"
-                maxlength="8"
-                class="form-control {% if errores.dni %}is-invalid{% endif %}"
-                value="{{ datos.get('dni') or '' }}"
-                required>
-
-              {% if errores.dni %}
-                <div class="invalid-feedback">
-                  {{ errores.dni }}
-                </div>
-              {% else %}
-                <div class="form-text">
-                  Ingresá tu DNI sin puntos.
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Nombre -->
-            <div class="col-md-6">
-              <label for="nombre" class="form-label">
-                Nombre completo
-              </label>
-
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                maxlength="100"
-                class="form-control {% if errores.nombre %}is-invalid{% endif %}"
-                value="{{ datos.get('nombre') or '' }}"
-                required>
-
-              {% if errores.nombre %}
-                <div class="invalid-feedback">
-                  {{ errores.nombre }}
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Email -->
-            <div class="col-md-6">
-              <label for="email" class="form-label">
-                Email
-              </label>
-
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="form-control {% if errores.email %}is-invalid{% endif %}"
-                value="{{ datos.get('email') or '' }}"
-                required>
-
-              {% if errores.email %}
-                <div class="invalid-feedback">
-                  {{ errores.email }}
-                </div>
-              {% endif %}
-            </div>
-
-            <!-- Teléfono -->
-            <div class="col-md-6">
-              <label for="telefono" class="form-label">
-                Teléfono
-              </label>
-
-              <input
-                type="text"
-                id="telefono"
-                name="telefono"
-                class="form-control {% if errores.telefono %}is-invalid{% endif %}"
-                value="{{ datos.get('telefono') or '' }}"
-                required>
-
-              {% if errores.telefono %}
-                <div class="invalid-feedback">
-                  {{ errores.telefono }}
-                </div>
-              {% endif %}
-            </div>
-
-          </div>
-
-          <!-- PLAN -->
-          <div class="mt-4">
-            <label for="id_plan" class="form-label">
-              Plan contratado
-            </label>
-
-            <select
-              id="id_plan"
-              name="id_plan"
-              class="form-select {% if errores.id_plan %}is-invalid{% endif %}"
-              required>
-
-              <option value="">
-                Seleccione un plan
-              </option>
-
-              {% for plan in planes %}
-                <option
-                  value="{{ plan.id_plan }}"
-                  {% if datos.get('id_plan')|string == plan.id_plan|string %}
-                    selected
-                  {% endif %}>
-                  {{ plan.nombre_plan }} - ${{ plan.valor_plan }}
-                </option>
-              {% endfor %}
-            </select>
-
-            {% if errores.id_plan %}
-              <div class="invalid-feedback">
-                {{ errores.id_plan }}
-              </div>
+        <div class="form-grid">
+          <div>
+            <label for="dni" class="form-label">DNI</label>
+            <input type="text" id="dni" name="dni"
+                   maxlength="8" inputmode="numeric"
+                   class="form-control {% if errores.dni %}is-invalid{% endif %}"
+                   value="{{ datos.get('dni') or '' }}"
+                   required
+                   {% if errores.dni %}
+                     aria-invalid="true" aria-describedby="dni-error"
+                   {% else %}
+                     aria-describedby="dni-help"
+                   {% endif %}>
+            {% if errores.dni %}
+              <div class="invalid-feedback" id="dni-error">{{ errores.dni }}</div>
             {% else %}
-              <div class="form-text">
-                Debe seleccionar un plan para completar el registro.
-              </div>
+              <div class="form-text" id="dni-help">7 u 8 números, sin puntos.</div>
             {% endif %}
           </div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-person-plus"></i>
-              Registrarme
-            </button>
-
-            <a href="{{ url_for('main.inicio') }}"
-               class="btn btn-outline-secondary">
-              Cancelar
-            </a>
+          <div>
+            <label for="nombre" class="form-label">Nombre completo</label>
+            <input type="text" id="nombre" name="nombre"
+                   maxlength="100" autocomplete="name"
+                   class="form-control {% if errores.nombre %}is-invalid{% endif %}"
+                   value="{{ datos.get('nombre') or '' }}"
+                   required
+                   {% if errores.nombre %}
+                     aria-invalid="true" aria-describedby="nombre-error"
+                   {% else %}
+                     aria-describedby="nombre-help"
+                   {% endif %}>
+            {% if errores.nombre %}
+              <div class="invalid-feedback" id="nombre-error">{{ errores.nombre }}</div>
+            {% else %}
+              <div class="form-text" id="nombre-help">Entre 3 y 100 caracteres.</div>
+            {% endif %}
           </div>
 
-        </form>
+          <div>
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email"
+                   maxlength="120" autocomplete="email"
+                   class="form-control {% if errores.email %}is-invalid{% endif %}"
+                   value="{{ datos.get('email') or '' }}"
+                   required
+                   {% if errores.email %}
+                     aria-invalid="true" aria-describedby="email-error"
+                   {% else %}
+                     aria-describedby="email-help"
+                   {% endif %}>
+            {% if errores.email %}
+              <div class="invalid-feedback" id="email-error">{{ errores.email }}</div>
+            {% else %}
+              <div class="form-text" id="email-help">El email no puede repetirse en otro registro.</div>
+            {% endif %}
+          </div>
 
+          <div>
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="text" id="telefono" name="telefono"
+                   maxlength="30" autocomplete="tel"
+                   class="form-control {% if errores.telefono %}is-invalid{% endif %}"
+                   value="{{ datos.get('telefono') or '' }}"
+                   required
+                   {% if errores.telefono %}
+                     aria-invalid="true" aria-describedby="telefono-error"
+                   {% else %}
+                     aria-describedby="telefono-help"
+                   {% endif %}>
+            {% if errores.telefono %}
+              <div class="invalid-feedback" id="telefono-error">{{ errores.telefono }}</div>
+            {% else %}
+              <div class="form-text" id="telefono-help">Hasta 30 caracteres.</div>
+            {% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="field-group">
+        <fieldset
+          {% if errores.id_plan %}
+            tabindex="-1" aria-invalid="true" aria-describedby="id_plan-error"
+          {% else %}
+            aria-describedby="id_plan-help"
+          {% endif %}>
+          <legend>Plan contratado</legend>
+
+          {% if planes %}
+            <p class="form-text mt-0 mb-3" id="id_plan-help">
+              El plan define los servicios que vas a contratar.
+            </p>
+
+            <div class="plan-options">
+              {% for plan in planes %}
+                <label class="plan-option">
+                  <input class="form-check-input" type="radio" name="id_plan"
+                         value="{{ plan.id_plan }}"
+                         {% if datos.get('id_plan')|string == plan.id_plan|string %}checked{% endif %}
+                         required>
+                  <span>
+                    <span class="plan-option__head">
+                      <span class="plan-option__name">{{ plan.nombre_plan }}</span>
+                      <span class="plan-option__price">{{ plan.valor_plan|moneda }}</span>
+                    </span>
+                    <span class="plan-option__services">
+                      {% if plan.servicios %}
+                        {{ plan.servicios|map(attribute='tipo_servicio')|join(', ') }}
+                      {% else %}
+                        Sin servicios incluidos
+                      {% endif %}
+                    </span>
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+
+            {% if errores.id_plan %}
+              <div class="invalid-feedback d-block" id="id_plan-error">
+                {{ errores.id_plan }}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="notice notice--info">
+              <i class="bi bi-info-circle-fill notice__icon" aria-hidden="true"></i>
+              <p>
+                Todavía no hay planes disponibles. El registro se habilita
+                cuando la consultora publique un plan.
+              </p>
+            </div>
+            {% if errores.id_plan %}
+              <div class="invalid-feedback d-block" id="id_plan-error">
+                {{ errores.id_plan }}
+              </div>
+            {% endif %}
+          {% endif %}
+        </fieldset>
       </div>
-    </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" {% if not planes %}disabled{% endif %}>
+          Registrarme
+        </button>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-outline-secondary">
+          Volver al inicio
+        </a>
+      </div>
+    </form>
   </div>
+
+  <aside class="form-aside" aria-labelledby="ayuda-registro">
+    <h2 id="ayuda-registro">Antes de registrarte</h2>
+    <ul>
+      <li>El DNI tiene 7 u 8 números, sin puntos.</li>
+      <li>El nombre completo debe tener entre 3 y 100 caracteres.</li>
+      <li>El DNI y el email no pueden repetirse en otro registro.</li>
+      <li>El plan que elijas define los servicios que contratás.</li>
+    </ul>
+  </aside>
 </div>
 {% endblock %}

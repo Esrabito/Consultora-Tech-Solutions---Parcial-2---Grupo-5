@@ -11,7 +11,11 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 @admin_bp.get("/")
 @admin_requerido
 def inicio():
-    return render_template("admin/inicio.html")
+    return render_template(
+        "admin/inicio.html",
+        total_servicios=len(servicios_service.listar_servicios()),
+        total_planes=len(planes_service.listar_planes()),
+    )
 
 
 # ---------------------------------------------------------------------------

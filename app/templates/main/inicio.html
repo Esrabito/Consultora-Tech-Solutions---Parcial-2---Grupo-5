@@ -3,61 +3,83 @@
 {% block titulo %}Inicio{% endblock %}
 
 {% block contenido %}
-<div class="p-4 p-md-5 mb-4 bg-body-tertiary rounded-3 border">
-  <h1 class="display-6 fw-semibold">
-    Gestión de Servicios Profesionales
-  </h1>
+<section class="hero" aria-labelledby="inicio-titulo">
+  <div class="hero__copy">
+    <h1 id="inicio-titulo">Servicios, planes y clientes en un solo sistema.</h1>
 
-  <p class="lead mb-0">
-    Consultá tus servicios contratados, tu plan y tus gestiones con Tech
-    Solutions.
-  </p>
-</div>
+    <p class="hero__lead">
+      Administrá el catálogo de servicios y los planes de la consultora, o
+      registrate como cliente para contratar un plan.
+    </p>
 
-<div class="row g-3">
-
-  <!-- Administración -->
-  <div class="col-12 col-md-6">
-    <div class="card h-100 shadow-sm">
-      <div class="card-body">
-        <h2 class="h5 card-title">
-          <i class="bi bi-shield-lock"></i>
-          Administración
-        </h2>
-
-        <p class="card-text text-muted">
-          Gestión de servicios, planes y clientes.
-        </p>
-
-        <a href="{{ url_for('admin.inicio') }}"
-           class="btn btn-primary">
-          Ingresar
+    <div class="hero__actions">
+      {% if session.get('es_admin') %}
+        <a href="{{ url_for('admin.inicio') }}" class="btn btn-primary btn-lg">
+          Ir al panel
         </a>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="col-12 col-md-6">
-    <div class="card h-100 shadow-sm">
-      <div class="card-body">
-        <h2 class="h5 card-title">
-          <i class="bi bi-person-plus"></i>
-          Registro de Cliente
-        </h2>
-
-        <p class="card-text text-muted">
-          Registrate en el sistema, cargá tus datos personales y seleccioná
-          un plan para acceder a los servicios de la consultora.
-        </p>
-
-        <a href="{{ url_for('cliente.registro') }}"
-           class="btn btn-success">
+        <a href="{{ url_for('admin.listar_servicios') }}" class="btn btn-outline-ink btn-lg">
+          Gestionar servicios
+        </a>
+      {% else %}
+        <a href="{{ url_for('cliente.registro') }}" class="btn btn-primary btn-lg">
           Registrarme
         </a>
-      </div>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-ink btn-lg">
+          Ingresar al panel
+        </a>
+      {% endif %}
     </div>
   </div>
 
-</div>
+  <figure class="system-map">
+    <div class="system-map__canvas">
+      <div class="map-node map-node--client">
+        <span class="map-node__label">Clientes</span>
+        <span class="map-node__detail">Se registran con sus datos personales.</span>
+      </div>
+
+      <div class="map-link">
+        <span class="map-link__label">contratan</span>
+      </div>
+
+      <div class="map-node map-node--plan">
+        <span class="map-node__label">Planes</span>
+        <span class="map-node__detail">Definen el valor y los servicios incluidos.</span>
+      </div>
+
+      <div class="map-link">
+        <span class="map-link__label">incluyen</span>
+      </div>
+
+      <div class="map-node">
+        <span class="map-node__label">Servicios</span>
+        <span class="map-node__detail">Lo que la consultora ofrece a sus clientes.</span>
+      </div>
+    </div>
+
+    <figcaption class="system-map__caption">
+      Cada cliente contrata un plan, y cada plan reúne los servicios que la
+      consultora pone a disposición.
+    </figcaption>
+  </figure>
+</section>
+
+<section class="system-index" aria-labelledby="sistema-titulo">
+  <h2 id="sistema-titulo">Qué administra el sistema</h2>
+
+  <dl class="ledger">
+    <div class="ledger__row">
+      <dt>Servicios</dt>
+      <dd>El catálogo de lo que la consultora ofrece a sus clientes.</dd>
+    </div>
+    <div class="ledger__row">
+      <dt>Planes</dt>
+      <dd>La combinación de servicios y el valor que contrata un cliente.</dd>
+    </div>
+    <div class="ledger__row">
+      <dt>Clientes</dt>
+      <dd>Las personas que se registran y quedan asociadas a un plan.</dd>
+    </div>
+  </dl>
+</section>
 {% endblock %}

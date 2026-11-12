@@ -3,9 +3,10 @@
 {% block titulo %}Página no encontrada{% endblock %}
 
 {% block contenido %}
-<div class="text-center py-5">
-  <h1 class="display-5">404</h1>
-  <p class="lead">La página que buscás no existe.</p>
+<section class="error-page">
+  <p class="error-page__code" aria-hidden="true">404</p>
+  <h1>Página no encontrada</h1>
+  <p>La página que buscás no existe o cambió de dirección.</p>
   <a href="{{ url_for('main.inicio') }}" class="btn btn-primary">Volver al inicio</a>
-</div>
+</section>
 {% endblock %}

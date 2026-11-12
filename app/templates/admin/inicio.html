@@ -3,31 +3,70 @@
 {% block titulo %}Panel de administración{% endblock %}
 
 {% block contenido %}
-<h1 class="h3 mb-4"><i class="bi bi-speedometer2"></i> Panel de administración</h1>
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Panel de administración</h1>
+    <p class="page-head__lead">
+      El catálogo de servicios y los planes comerciales de la consultora.
+    </p>
+  </div>
+</header>
 
-<div class="row g-3">
-  {# Cada módulo se habilita cuando su historia de usuario está implementada (ruta = None: en desarrollo). #}
-  {% set modulos = [
-    ("Servicios", "bi-tools", "Catálogo de servicios de la consultora (HU-07).", "admin.listar_servicios"),
-    ("Planes", "bi-box-seam", "Planes comerciales y servicios incluidos (HU-06).", "admin.listar_planes"),
-    ("Clientes", "bi-people", "Clientes registrados y su detalle (HU-32 / HU-04).", None),
-  ] %}
-  {% for nombre, icono, descripcion, ruta in modulos %}
-    <div class="col-12 col-md-4">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h2 class="h5 card-title"><i class="bi {{ icono }}"></i> {{ nombre }}</h2>
-          <p class="card-text text-muted">{{ descripcion }}</p>
-          <div class="mt-auto">
-            {% if ruta %}
-              <a href="{{ url_for(ruta) }}" class="btn btn-primary">Gestionar</a>
-            {% else %}
-              <span class="badge text-bg-secondary">En desarrollo</span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+<section class="module-list" aria-label="Módulos del panel">
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-tools" aria-hidden="true"></i>
+        Servicios
+      </h2>
+      <p class="module__count">
+        {{ total_servicios }} {% if total_servicios == 1 %}servicio en el catálogo{% else %}servicios en el catálogo{% endif %}
+      </p>
     </div>
-  {% endfor %}
-</div>
+    <p class="module__desc">
+      Los tipos de servicio que la consultora ofrece a sus clientes.
+    </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.listar_servicios') }}" class="btn btn-outline-ink">
+        Gestionar servicios
+      </a>
+    </div>
+  </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-box-seam" aria-hidden="true"></i>
+        Planes
+      </h2>
+      <p class="module__count">
+        {{ total_planes }} {% if total_planes == 1 %}plan disponible{% else %}planes disponibles{% endif %}
+      </p>
+    </div>
+    <p class="module__desc">
+      Los planes comerciales y los servicios que incluye cada uno.
+    </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.listar_planes') }}" class="btn btn-outline-ink">
+        Gestionar planes
+      </a>
+    </div>
+  </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-people" aria-hidden="true"></i>
+        Clientes
+      </h2>
+      <p class="module__count">Registro y detalle de clientes</p>
+    </div>
+    <p class="module__desc">
+      Este módulo todavía no está disponible en el panel.
+    </p>
+    <div class="module__action">
+      <span class="tag tag--pending">En desarrollo</span>
+    </div>
+  </article>
+</section>
 {% endblock %}
