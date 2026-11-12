@@ -61,7 +61,7 @@ app/
   extensions.py     base de datos y protección CSRF
   models/           entidades del DER
   services/         reglas de negocio
-  integrations/     clientes HTTP de los sistemas externos
+    integrations/     simulación de los sistemas externos (VeriCheck)
   routes/           pantallas HTML y API REST
   templates/        vistas (Jinja + Bootstrap)
   static/           estilos
@@ -88,7 +88,7 @@ run.py              punto de entrada
 | HU-06 | Gestionar planes | 6 | En testing (la regla de baja con clientes se completa con HU-01) |
 | HU-30 | Seleccionar plan en el registro | 1 | Pendiente |
 | HU-01 | Registrar cliente | 6 | Pendiente |
-| HU-25 | Validar identidad (VeriCheck) | 3 | Pendiente |
+| HU-25 | Validar identidad (VeriCheck) | 3 | En testing (se integra con el registro en HU-01) |
 | HU-31 | Registrar clientes en CRMMax | 2 | Pendiente |
 | HU-32 | Consultar clientes registrados | 1 | Pendiente |
 | HU-04 | Gestionar clientes registrados | 8 | Pendiente |
@@ -126,7 +126,7 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET` | `/api/planes/<id>` | 200, 404 |
 | `PUT` | `/api/planes/<id>` | 200, 400, 404, 409 |
 | `DELETE` | `/api/planes/<id>` | 204, 404 |
-
+| `POST` | `/api/validaciones` | 200, 400 |
 Ejemplos de cuerpo:
 
 ```json
@@ -139,3 +139,9 @@ Ejemplos de cuerpo:
 
 `servicios` es la lista de `id_servicio` que incluye el plan (al menos uno).
 `valor_plan` puede ir como número o como texto (`"25.000,50"`).
+
+```json
+{"dni": "12345678", "nombre": "Ana Pérez"}
+```
+
+`/api/validaciones` devuelve el `estado` de la validación (`VALIDADO` o `NO_VALIDADO`) y el `motivo` si no se validó. VeriCheck se simula dentro del sistema: un DNI con todos los dígitos iguales (por ejemplo `11111111`) queda `NO_VALIDADO`.

@@ -10,6 +10,8 @@ from flask import Blueprint, abort, jsonify, request, url_for
 from app.routes.auth import admin_requerido
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
+from app.services import validacion
+from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -95,6 +97,14 @@ def actualizar_plan(id_plan):
 def eliminar_plan(id_plan):
     planes_service.eliminar_plan(id_plan)
     return "", 204
+
+# ---------------------------------------------------------------------------
+# HU-25 Validar identidad
+# ---------------------------------------------------------------------------
+@api_bp.post("/validaciones")
+@admin_requerido
+def validar_identidad():
+    return jsonify(validacion_service.validar_identidad(_leer_json()))
 
 
 # ---------------------------------------------------------------------------

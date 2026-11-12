@@ -13,7 +13,6 @@ class Config:
     # Flask-SQLAlchemy ubica las rutas SQLite relativas dentro de la carpeta instance/
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///tech_solutions.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
     WTF_CSRF_ENABLED = True
 
 

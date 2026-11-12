@@ -46,6 +46,19 @@ o si queda como suposición a confirmar.
 | Relación plan–servicio | Tabla `plan_servicio` (N:M "Incluye" del DER). Al borrar un plan se borran sus filas; un servicio que está en un plan no se puede borrar (CU-15 E2) | REQUISITO |
 | Plan con clientes | No se puede eliminar (CU-14 E2). Se implementa con HU-01, cuando exista el modelo Cliente | REQUISITO |
 
+## Decisiones de HU-25 Validar identidad
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| VeriCheck | Es un sistema externo que no existe. Por indicación del profesor, la validación se simula dentro de nuestro sistema (`app/integrations/vericheck.py`). Si algún día se conectara un VeriCheck real, solo habría que cambiar ese archivo | REQUISITO (indicación del profesor) |
+| Regla de la simulación | Un DNI con todos los dígitos iguales (por ejemplo `11111111`) no corresponde a una persona registrada y queda NO_VALIDADO con ese motivo. Cualquier otro DNI queda VALIDADO | SUPOSICIÓN |
+| Datos que se validan | DNI y nombre. El DNI tiene 7 u 8 números (se aceptan puntos y espacios, como "12.345.678"). El nombre tiene entre 3 y 100 caracteres. Si hay errores, se informan todos juntos | DECISIÓN TÉCNICA |
+| Resultado | Los datos personales más el estado `VALIDADO` o `NO_VALIDADO` y el motivo si no se validó. No se guarda nada en la base de datos | REQUISITO (CU-1) |
+| Respuesta de la API | Un resultado NO_VALIDADO devuelve 200, porque la consulta se hizo bien. Se devuelve 400 solo si el DNI o el nombre tienen un formato incorrecto | DECISIÓN TÉCNICA |
+| Acceso | El endpoint `POST /api/validaciones` es solo para el administrador (HU-25). El registro de clientes no usa el endpoint: llama directamente al service `validar_identidad` | REQUISITO (HU-25) / DECISIÓN TÉCNICA (uso desde el registro) |
+| Registro de la llamada | Cada validación queda en el log con el DNI enmascarado (`*****678`), como indica la decisión 3 (CU-18) | DECISIÓN TÉCNICA |
+| Uso desde el registro (HU-01) | Si el resultado es NO_VALIDADO, se muestra el motivo en pantalla (excepción E2 del CU-2). Se completa con HU-01 | REQUISITO |
+
 ## Planificación
 
 | Tema | Decisión |
