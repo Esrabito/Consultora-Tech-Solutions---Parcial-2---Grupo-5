@@ -6,10 +6,15 @@ from app.extensions import db
 from app.models import Cliente, Plan
 from app.services.comun import guardar_cambios
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
-from app.services.errores import Conflicto, DatosInvalidos
 
 
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def listar_clientes():
+    """Clientes registrados ordenados por nombre (HU-31 / CU-13)."""
+    consulta = db.select(Cliente).order_by(Cliente.nombre, Cliente.id_cliente)
+    return db.session.scalars(consulta).all()
 
 
 def crear_cliente(datos):

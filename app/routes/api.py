@@ -8,9 +8,9 @@ desde otro sitio sin permiso explícito (CORS), así que el riesgo queda cubiert
 from flask import Blueprint, abort, jsonify, request, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import clientes as clientes_service
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
-from app.services import validacion
 from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
@@ -97,6 +97,26 @@ def actualizar_plan(id_plan):
 def eliminar_plan(id_plan):
     planes_service.eliminar_plan(id_plan)
     return "", 204
+
+# ---------------------------------------------------------------------------
+# HU-31 Consultar clientes / HU-04 Detalle de cliente (solo lectura)
+# ---------------------------------------------------------------------------
+
+
+@api_bp.get("/clientes")
+@admin_requerido
+def listar_clientes():
+    return jsonify([cliente.a_dict() for cliente in clientes_service.listar_clientes()])
+
+
+@api_bp.get("/clientes/<int:id_cliente>")
+@admin_requerido
+def obtener_cliente(id_cliente):
+    cliente = clientes_service.obtener_cliente(id_cliente)
+    detalle = cliente.a_dict()
+    detalle["plan"] = cliente.plan.a_dict()
+    return jsonify(detalle)
+
 
 # ---------------------------------------------------------------------------
 # HU-25 Validar identidad

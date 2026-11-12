@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block titulo %}Clientes{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><span aria-current="page">Clientes</span></li>
+      </ul>
+    </nav>
+    <h1>Clientes</h1>
+    <p class="page-head__meta">
+      {% if clientes %}
+        {{ clientes|length }}
+        {% if clientes|length == 1 %}cliente registrado{% else %}clientes registrados{% endif %}
+      {% else %}
+        Clientes registrados en el sistema
+      {% endif %}
+    </p>
+  </div>
+</header>
+
+{% if clientes %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Clientes registrados y su plan</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="cell-id">N.º</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">DNI</th>
+          <th scope="col">Email</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Plan</th>
+          <th scope="col" class="cell-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cliente in clientes %}
+          <tr>
+            <td class="cell-id" data-label="N.º">{{ cliente.id_cliente }}</td>
+            <td class="cell-main" data-label="Nombre">{{ cliente.nombre }}</td>
+            <td data-label="DNI">{{ cliente.dni }}</td>
+            <td data-label="Email">{{ cliente.email }}</td>
+            <td data-label="Teléfono">{{ cliente.telefono }}</td>
+            <td data-label="Plan"><span class="tag">{{ cliente.plan.nombre_plan }}</span></td>
+            <td class="cell-actions" data-label="Acciones">
+              <div class="row-actions">
+                <a href="{{ url_for('admin.detalle_cliente', id_cliente=cliente.id_cliente) }}"
+                   class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-eye" aria-hidden="true"></i> Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true">
+      <i class="bi bi-people"></i>
+    </span>
+    <h2>Todavía no hay clientes registrados</h2>
+    <p>
+      Los clientes aparecen acá cuando completan el registro con sus datos y eligen un plan.
+    </p>
+  </div>
+{% endif %}
+{% endblock %}

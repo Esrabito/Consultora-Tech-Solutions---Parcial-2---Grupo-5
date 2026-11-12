@@ -1,8 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import clientes as clientes_service
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
+from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado, errores_para_formulario
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -15,6 +17,7 @@ def inicio():
         "admin/inicio.html",
         total_servicios=len(servicios_service.listar_servicios()),
         total_planes=len(planes_service.listar_planes()),
+        total_clientes=len(clientes_service.listar_clientes()),
     )
 
 
@@ -178,3 +181,46 @@ def _formulario_plan(datos, errores=None, plan=None):
         servicios=servicios_service.listar_servicios(),
         seleccionados=seleccionados,
     )
+
+
+# ---------------------------------------------------------------------------
+# HU-31 Consultar clientes registrados / HU-04 Gestionar clientes (CU-13)
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/clientes")
+@admin_requerido
+def listar_clientes():
+    clientes = clientes_service.listar_clientes()
+    return render_template("admin/clientes/lista.html", clientes=clientes)
+
+
+@admin_bp.get("/clientes/<int:id_cliente>")
+@admin_requerido
+def detalle_cliente(id_cliente):
+    try:
+        cliente = clientes_service.obtener_cliente(id_cliente)
+    except NoEncontrado as error:
+        # CU-13 E2: si el cliente no existe se avisa y se vuelve al listado.
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_clientes"))
+
+    return render_template("admin/clientes/detalle.html", cliente=cliente)
+
+
+@admin_bp.post("/clientes/<int:id_cliente>/validar")
+@admin_requerido
+def validar_cliente(id_cliente):
+    """HU-25: el administrador valida la identidad del cliente con VeriCheck."""
+    try:
+        cliente = clientes_service.obtener_cliente(id_cliente)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_clientes"))
+
+    resultado = validacion_service.validar_identidad({"dni": cliente.dni, "nombre": cliente.nombre})
+    if resultado["estado"] == validacion_service.ESTADO_VALIDADO:
+        flash(f"VeriCheck validó la identidad de {cliente.nombre}.", "success")
+    else:
+        flash(f"VeriCheck no validó la identidad de {cliente.nombre}: {resultado['motivo']}", "danger")
+    return redirect(url_for("admin.detalle_cliente", id_cliente=id_cliente))

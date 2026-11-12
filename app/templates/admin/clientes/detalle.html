@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ cliente.nombre }}{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><a href="{{ url_for('admin.listar_clientes') }}">Clientes</a></li>
+        <li><span aria-current="page">{{ cliente.nombre }}</span></li>
+      </ul>
+    </nav>
+    <h1>{{ cliente.nombre }}</h1>
+    <p class="page-head__meta">Cliente N.º {{ cliente.id_cliente }} · Vista de solo lectura</p>
+  </div>
+  <div class="page-head__actions">
+    {# HU-25: el administrador puede validar la identidad del cliente con VeriCheck. #}
+    <form action="{{ url_for('admin.validar_cliente', id_cliente=cliente.id_cliente) }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-ink">
+        <i class="bi bi-shield-check" aria-hidden="true"></i> Validar con VeriCheck
+      </button>
+    </form>
+  </div>
+</header>
+
+<section class="form-layout">
+  <div class="form-sheet">
+    <h2>Datos personales</h2>
+    <dl class="ledger">
+      <div class="ledger__row"><dt>Nombre</dt><dd>{{ cliente.nombre }}</dd></div>
+      <div class="ledger__row"><dt>DNI</dt><dd>{{ cliente.dni }}</dd></div>
+      <div class="ledger__row"><dt>Email</dt><dd>{{ cliente.email }}</dd></div>
+      <div class="ledger__row"><dt>Teléfono</dt><dd>{{ cliente.telefono }}</dd></div>
+    </dl>
+
+    <h2 class="mt-4">Plan contratado</h2>
+    <dl class="ledger">
+      <div class="ledger__row"><dt>Plan</dt><dd>{{ cliente.plan.nombre_plan }}</dd></div>
+      <div class="ledger__row"><dt>Valor</dt><dd>{{ cliente.plan.valor_plan|moneda }}</dd></div>
+      <div class="ledger__row">
+        <dt>Servicios</dt>
+        <dd>
+          <div class="tag-list">
+            {% for servicio in cliente.plan.servicios %}
+              <span class="tag">{{ servicio.tipo_servicio }}</span>
+            {% endfor %}
+          </div>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <aside class="form-aside" aria-labelledby="gestiones-titulo">
+    <h2 id="gestiones-titulo">Gestiones del cliente</h2>
+    <ul>
+      {# Solicitudes y reclamos llegan en sprints posteriores (épicas de gestión). #}
+      <li>Solicitudes: sin registros.</li>
+      <li>Reclamos: sin registros.</li>
+    </ul>
+    <p class="text-muted">
+      <a href="{{ url_for('admin.listar_clientes') }}">Volver al listado</a>
+    </p>
+  </aside>
+</section>
+{% endblock %}

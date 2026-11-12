@@ -46,8 +46,10 @@ def _registrar_blueprints(app):
     from app.routes.main import main_bp
     from app.routes.web_admin import admin_bp
     from app.routes.web_cliente import cliente_bp
-    from app.routes.cuenta_cliente import cuenta_bp   
+    from app.routes.cuenta_cliente import cuenta_bp
+    from app.comandos import comandos_bp
 
+    app.register_blueprint(comandos_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)

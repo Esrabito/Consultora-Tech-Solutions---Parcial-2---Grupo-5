@@ -59,13 +59,17 @@
         <i class="bi bi-people" aria-hidden="true"></i>
         Clientes
       </h2>
-      <p class="module__count">Registro y detalle de clientes</p>
+      <p class="module__count">
+        {{ total_clientes }} {% if total_clientes == 1 %}cliente registrado{% else %}clientes registrados{% endif %}
+      </p>
     </div>
     <p class="module__desc">
-      Este módulo todavía no está disponible en el panel.
+      Los clientes registrados, sus datos personales y el plan que contrataron.
     </p>
     <div class="module__action">
-      <span class="tag tag--pending">En desarrollo</span>
+      <a href="{{ url_for('admin.listar_clientes') }}" class="btn btn-outline-ink">
+        Ver clientes
+      </a>
     </div>
   </article>
 </section>
