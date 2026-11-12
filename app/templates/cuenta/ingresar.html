@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ingreso de cliente{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('main.inicio') }}">Inicio</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      Ingreso de cliente
+    </li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+
+        <h1 class="h4 mb-3">Ingreso de cliente</h1>
+
+        <p class="text-muted mb-4">
+          Ingresá tu DNI y tu email para ver tu plan y tus servicios contratados.
+        </p>
+
+        {% if errores.general %}
+          <div class="alert alert-danger">
+            {{ errores.general }}
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label for="dni" class="form-label">DNI</label>
+            <input
+              type="text"
+              id="dni"
+              name="dni"
+              maxlength="8"
+              class="form-control {% if errores.dni %}is-invalid{% endif %}"
+              value="{{ datos.get('dni') or '' }}"
+              required>
+            {% if errores.dni %}
+              <div class="invalid-feedback">{{ errores.dni }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control {% if errores.email %}is-invalid{% endif %}"
+              value="{{ datos.get('email') or '' }}"
+              required>
+            {% if errores.email %}
+              <div class="invalid-feedback">{{ errores.email }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-box-arrow-in-right"></i>
+              Ingresar
+            </button>
+            <a href="{{ url_for('main.inicio') }}" class="btn btn-outline-secondary">
+              Cancelar
+            </a>
+          </div>
+
+        </form>
+
+        <p class="text-muted small mt-4 mb-0">
+          ¿Todavía no sos cliente?
+          <a href="{{ url_for('cliente.registro') }}">Registrate</a>.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

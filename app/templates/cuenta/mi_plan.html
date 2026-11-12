@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi plan{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('main.inicio') }}">Inicio</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      Mi plan
+    </li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Hola, {{ cliente.nombre }}</h1>
+
+  <form action="{{ url_for('cuenta.salir') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-box-arrow-right"></i>
+      Salir
+    </button>
+  </form>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+
+    <h2 class="h5">
+      <i class="bi bi-card-checklist"></i>
+      Mi plan contratado
+    </h2>
+
+    <p class="mb-3">
+      <strong>{{ cliente.plan.nombre_plan }}</strong>
+      <span class="text-muted">· $ {{ cliente.plan.valor_plan }}</span>
+    </p>
+
+    <h3 class="h6">Servicios incluidos</h3>
+
+    {% if cliente.plan.servicios %}
+      <ul class="list-group">
+        {% for servicio in cliente.plan.servicios %}
+          <li class="list-group-item">{{ servicio.tipo_servicio }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">Tu plan todavía no tiene servicios cargados.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
