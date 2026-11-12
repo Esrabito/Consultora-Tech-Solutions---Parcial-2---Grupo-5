@@ -1,8 +1,4 @@
-"""Reglas de negocio de los planes (HU-06 / CU-14 Gestionar planes).
-
-La regla de no eliminar un plan con clientes asignados (CU-14 E2) la sumamos con
-HU-01, que es cuando aparece el modelo Cliente.
-"""
+"""Reglas de negocio de los planes (HU-06 / CU-14 Gestionar planes)."""
 
 import re
 from decimal import Decimal, InvalidOperation
@@ -56,6 +52,16 @@ def actualizar_plan(id_plan, datos):
 
 def eliminar_plan(id_plan):
     plan = obtener_plan(id_plan)
+
+    # CU-14 E2: un plan con clientes asignados no se puede eliminar.
+    cantidad = len(plan.clientes)
+    if cantidad:
+        clientes = "1 cliente" if cantidad == 1 else f"{cantidad} clientes"
+        raise Conflicto(
+            f"No se puede eliminar el plan porque tiene {clientes} asignados. "
+            "Primero hay que cambiarles el plan."
+        )
+
     db.session.delete(plan)
     guardar_cambios()
 

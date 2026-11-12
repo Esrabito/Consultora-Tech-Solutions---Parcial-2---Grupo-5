@@ -240,6 +240,42 @@ class TestBajaDePlan:
         assert "El plan no existe" in respuesta.get_data(as_text=True)
 
 
+class TestBajaDePlanConClientes:
+    """CU-14 E2: no se puede eliminar un plan que tiene clientes asignados."""
+
+    @staticmethod
+    def registrar_cliente(cliente, dni, email):
+        datos = {"dni": dni, "nombre": "Ana Pérez", "email": email, "telefono": "1122334455", "id_plan": "1"}
+        respuesta = cliente.post("/cliente/registro", data=datos)
+        assert respuesta.status_code == 302
+
+    def test_no_elimina_un_plan_con_clientes(self, app, con_servicios):
+        crear_plan(con_servicios, "Plan Básico")
+        self.registrar_cliente(con_servicios, "12345678", "ana@example.com")
+        self.registrar_cliente(con_servicios, "23456789", "juan@example.com")
+
+        respuesta = con_servicios.post("/admin/planes/1/eliminar", follow_redirects=True)
+
+        assert "tiene 2 clientes asignados" in respuesta.get_data(as_text=True)
+        assert len(planes_guardados(app)) == 1
+
+    def test_por_api_devuelve_409(self, con_servicios):
+        crear_plan(con_servicios, "Plan Básico")
+        self.registrar_cliente(con_servicios, "12345678", "ana@example.com")
+
+        respuesta = con_servicios.delete("/api/planes/1")
+
+        assert respuesta.status_code == 409
+        assert "tiene 1 cliente asignado" in respuesta.get_json()["error"]
+
+    def test_un_plan_sin_clientes_se_elimina_normal(self, con_servicios):
+        crear_plan(con_servicios, "Plan Básico")
+        crear_plan(con_servicios, "Plan Premium")
+        self.registrar_cliente(con_servicios, "12345678", "ana@example.com")  # queda en el plan 1
+
+        assert con_servicios.delete("/api/planes/2").status_code == 204
+
+
 class TestBajaDeServicioIncluidoEnPlanes:
     """HU-07 / CU-15 E2: no se puede eliminar un servicio que está en un plan."""
 
