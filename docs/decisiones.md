@@ -68,6 +68,20 @@ o si queda como suposición a confirmar.
 | Validación desde el detalle | El administrador puede validar la identidad del cliente con VeriCheck desde el detalle y ve el resultado (HU-25). No se guarda el resultado en la base | REQUISITO (HU-25) |
 | Numeración de HU | Se sigue la del Trello del 12/11: HU-30 CRMMax, HU-31 Consultar clientes. "Seleccionar plan" quedó dentro de HU-01 | REQUISITO (Trello) |
 
+## Decisiones de HU-05 Consultar planes y servicios contratados
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Ingreso del cliente | El cliente se identifica con DNI y email, sin contraseña, en `/cliente/ingresar`. El email se compara sin importar mayúsculas ni espacios de más | REQUISITO (decisión 4, CU-9) |
+| Limitación conocida | Como no hay contraseña, quien conozca el DNI y el email de otro cliente puede ver su plan. Es lo que define el requisito | REQUISITO |
+| Mensaje si no coincide | Siempre el mismo ("Los datos ingresados no coinciden con un cliente registrado."), sin decir cuál dato falló, para no revelar si un DNI o un email están registrados. El CU-9 no define qué pasa si el cliente no existe | SUPOSICIÓN |
+| Sesión del cliente | Al ingresar, el cliente queda en la sesión con su propia clave, separada de la del administrador: ingresar como cliente no da acceso al panel. Se cierra con "Salir" | DECISIÓN TÉCNICA |
+| Qué se muestra | El plan contratado del cliente, con su valor y los servicios que incluye. La HU dice "planes" en plural, pero el DER indica un solo plan por cliente (relación Contrata) | REQUISITO (HU-05) / SUPOSICIÓN (un solo plan) |
+| Cada cliente ve lo suyo | La pantalla no recibe un id en la dirección: el cliente se toma de la sesión, así nadie puede ver el plan de otro cambiando un número | DECISIÓN TÉCNICA |
+| Cliente borrado | Si la sesión apunta a un cliente que ya no existe, se cierra y se pide ingresar de nuevo | DECISIÓN TÉCNICA |
+
+
+
 ## Planificación
 
 | Tema | Decisión |

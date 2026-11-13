@@ -3,54 +3,52 @@
 {% block titulo %}Mi plan{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('main.inicio') }}">Inicio</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-      Mi plan
-    </li>
-  </ol>
-</nav>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h4 mb-0">Hola, {{ cliente.nombre }}</h1>
-
-  <form action="{{ url_for('cuenta.salir') }}" method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="btn btn-outline-secondary btn-sm">
-      <i class="bi bi-box-arrow-right"></i>
-      Salir
-    </button>
-  </form>
-</div>
-
-<div class="card shadow-sm">
-  <div class="card-body">
-
-    <h2 class="h5">
-      <i class="bi bi-card-checklist"></i>
-      Mi plan contratado
-    </h2>
-
-    <p class="mb-3">
-      <strong>{{ cliente.plan.nombre_plan }}</strong>
-      <span class="text-muted">· $ {{ cliente.plan.valor_plan }}</span>
-    </p>
-
-    <h3 class="h6">Servicios incluidos</h3>
-
-    {% if cliente.plan.servicios %}
-      <ul class="list-group">
-        {% for servicio in cliente.plan.servicios %}
-          <li class="list-group-item">{{ servicio.tipo_servicio }}</li>
-        {% endfor %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('main.inicio') }}">Inicio</a></li>
+        <li><span aria-current="page">Mi plan</span></li>
       </ul>
-    {% else %}
-      <p class="text-muted mb-0">Tu plan todavía no tiene servicios cargados.</p>
-    {% endif %}
-
+    </nav>
+    <h1>Hola, {{ cliente.nombre }}</h1>
+    <p class="page-head__lead">
+      Este es el plan que tenés contratado y los servicios que incluye.
+    </p>
   </div>
-</div>
+</header>
+
+<section class="system-index" aria-labelledby="plan-titulo">
+  <h2 id="plan-titulo">Mi plan contratado</h2>
+
+  <dl class="ledger">
+    <div class="ledger__row">
+      <dt>Plan</dt>
+      <dd>{{ cliente.plan.nombre_plan }}</dd>
+    </div>
+    <div class="ledger__row">
+      <dt>Valor</dt>
+      <dd>{{ cliente.plan.valor_plan|moneda }}</dd>
+    </div>
+  </dl>
+</section>
+
+<section class="system-index" aria-labelledby="servicios-titulo">
+  <h2 id="servicios-titulo">Servicios incluidos</h2>
+
+  {% if cliente.plan.servicios %}
+    <ul>
+      {% for servicio in cliente.plan.servicios %}
+        <li>{{ servicio.tipo_servicio }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="form-text">Tu plan todavía no tiene servicios cargados.</p>
+  {% endif %}
+</section>
+
+<form action="{{ url_for('cuenta.salir') }}" method="post" class="form-actions">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn btn-outline-secondary">Salir</button>
+</form>
 {% endblock %}

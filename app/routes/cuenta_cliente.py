@@ -38,7 +38,6 @@ def ingresar():
             return _formulario_ingreso(datos, errores_para_formulario(error)), 400
 
         session[CLAVE_SESION_CLIENTE] = cliente.id_cliente
-        flash(f"Hola, {cliente.nombre}.", "success")
         return redirect(url_for("cuenta.mi_plan"))
 
     return _formulario_ingreso(datos)

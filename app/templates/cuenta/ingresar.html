@@ -3,86 +3,87 @@
 {% block titulo %}Ingreso de cliente{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('main.inicio') }}">Inicio</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-      Ingreso de cliente
-    </li>
-  </ol>
-</nav>
-
-<div class="row justify-content-center">
-  <div class="col-12 col-md-8 col-lg-5">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-
-        <h1 class="h4 mb-3">Ingreso de cliente</h1>
-
-        <p class="text-muted mb-4">
-          Ingresá tu DNI y tu email para ver tu plan y tus servicios contratados.
-        </p>
-
-        {% if errores.general %}
-          <div class="alert alert-danger">
-            {{ errores.general }}
-          </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-          <div class="mb-3">
-            <label for="dni" class="form-label">DNI</label>
-            <input
-              type="text"
-              id="dni"
-              name="dni"
-              maxlength="8"
-              class="form-control {% if errores.dni %}is-invalid{% endif %}"
-              value="{{ datos.get('dni') or '' }}"
-              required>
-            {% if errores.dni %}
-              <div class="invalid-feedback">{{ errores.dni }}</div>
-            {% endif %}
-          </div>
-
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-control {% if errores.email %}is-invalid{% endif %}"
-              value="{{ datos.get('email') or '' }}"
-              required>
-            {% if errores.email %}
-              <div class="invalid-feedback">{{ errores.email }}</div>
-            {% endif %}
-          </div>
-
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-box-arrow-in-right"></i>
-              Ingresar
-            </button>
-            <a href="{{ url_for('main.inicio') }}" class="btn btn-outline-secondary">
-              Cancelar
-            </a>
-          </div>
-
-        </form>
-
-        <p class="text-muted small mt-4 mb-0">
-          ¿Todavía no sos cliente?
-          <a href="{{ url_for('cliente.registro') }}">Registrate</a>.
-        </p>
-
-      </div>
-    </div>
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('main.inicio') }}">Inicio</a></li>
+        <li><span aria-current="page">Ingreso de cliente</span></li>
+      </ul>
+    </nav>
+    <h1>Ingreso de cliente</h1>
+    <p class="page-head__lead">
+      Ingresá tu DNI y tu email para ver tu plan y tus servicios contratados.
+    </p>
   </div>
+</header>
+
+<div class="form-layout">
+  <div class="form-sheet">
+    {% if errores.general %}
+      <div class="notice notice--warning mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill notice__icon" aria-hidden="true"></i>
+        <p>{{ errores.general }}</p>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <fieldset>
+        <legend>Tus datos</legend>
+
+        <div class="form-grid">
+          <div>
+            <label for="dni" class="form-label">DNI</label>
+            <input type="text" id="dni" name="dni"
+                   maxlength="8" inputmode="numeric"
+                   class="form-control {% if errores.dni %}is-invalid{% endif %}"
+                   value="{{ datos.get('dni') or '' }}"
+                   required
+                   {% if errores.dni %}
+                     aria-invalid="true" aria-describedby="dni-error"
+                   {% endif %}>
+            {% if errores.dni %}
+              <div class="invalid-feedback" id="dni-error">{{ errores.dni }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email"
+                   maxlength="120" autocomplete="email"
+                   class="form-control {% if errores.email %}is-invalid{% endif %}"
+                   value="{{ datos.get('email') or '' }}"
+                   required
+                   {% if errores.email %}
+                     aria-invalid="true" aria-describedby="email-error"
+                   {% endif %}>
+            {% if errores.email %}
+              <div class="invalid-feedback" id="email-error">{{ errores.email }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Ingresar</button>
+        <a href="{{ url_for('main.inicio') }}" class="btn btn-outline-secondary">
+          Volver al inicio
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="form-aside" aria-labelledby="ayuda-ingreso">
+    <h2 id="ayuda-ingreso">¿No podés ingresar?</h2>
+    <ul>
+      <li>Usá el mismo DNI y el mismo email con los que te registraste.</li>
+      <li>
+        Si todavía no sos cliente,
+        <a href="{{ url_for('cliente.registro') }}">registrate</a>.
+      </li>
+    </ul>
+  </aside>
 </div>
 {% endblock %}
