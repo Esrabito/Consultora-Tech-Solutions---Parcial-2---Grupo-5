@@ -128,7 +128,7 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/clientes/<id>` | Detalle del cliente (solo lectura) | HU-04 |
 | `POST /admin/clientes/<id>/validar` | Valida la identidad del cliente con VeriCheck | HU-25 |
 | `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
-| `GET/POST /cliente/ingresar`, `GET /cliente/mi-plan` | Ingreso del cliente y consulta de su plan | HU-03 / HU-05 |
+| `GET/POST /cliente/ingresar`, `GET /cliente/mi-plan`, `POST /cliente/salir` | Ingreso del cliente, consulta de su plan y cierre de sesión | HU-03 / HU-05 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
@@ -147,6 +147,7 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET` | `/api/clientes` | 200 |
 | `GET` | `/api/clientes/<id>` | 200, 404 |
 | `POST` | `/api/validaciones` | 200, 400 |
+
 Ejemplos de cuerpo:
 
 ```json
