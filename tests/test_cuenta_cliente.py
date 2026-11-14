@@ -1,4 +1,4 @@
-"""Pruebas del ingreso del cliente y de la pantalla "Mi plan" (HU-05, CU-9)."""
+"""Pruebas del ingreso y la cuenta del cliente (HU-03 / HU-05, CU-9)."""
 
 import pytest
 
@@ -84,6 +84,24 @@ class TestMiPlan:
         assert "Plan Básico" in html
         assert "Consultoría legal" in html
         assert "Asesoría contable" in html
+
+    def test_muestra_informacion_personal_y_gestiones_sin_registros(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+
+        html = client.get("/cliente/mi-informacion").get_data(as_text=True)
+
+        for dato in [
+            "Mis datos personales",
+            "Ana Pérez",
+            "12345678",
+            "ana@example.com",
+            "1155550000",
+            "Mis solicitudes",
+            "No tenés solicitudes registradas.",
+            "Mis reclamos",
+            "No tenés reclamos registrados.",
+        ]:
+            assert dato in html
 
     def test_cada_cliente_ve_solo_su_propio_plan(self, app, client, ana):
         with app.app_context():

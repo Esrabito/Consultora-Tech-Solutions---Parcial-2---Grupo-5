@@ -61,11 +61,19 @@
                    href="{{ url_for('main.inicio') }}"
                    {% if request.endpoint == 'main.inicio' %}aria-current="page"{% endif %}>Inicio</a>
               </li>
-              <li>
-                <a class="site-nav__link {% if request.endpoint == 'cliente.registro' %}is-active{% endif %}"
-                   href="{{ url_for('cliente.registro') }}"
-                   {% if request.endpoint == 'cliente.registro' %}aria-current="page"{% endif %}>Registro</a>
-              </li>
+              {% if session.get('id_cliente') %}
+                <li>
+                  <a class="site-nav__link {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}is-active{% endif %}"
+                     href="{{ url_for('cuenta.mi_informacion') }}"
+                     {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}aria-current="page"{% endif %}>Mi información</a>
+                </li>
+              {% else %}
+                <li>
+                  <a class="site-nav__link {% if request.endpoint == 'cliente.registro' %}is-active{% endif %}"
+                     href="{{ url_for('cliente.registro') }}"
+                     {% if request.endpoint == 'cliente.registro' %}aria-current="page"{% endif %}>Registro</a>
+                </li>
+              {% endif %}
             {% endif %}
           </ul>
         </nav>

@@ -47,6 +47,16 @@ def ingresar():
 @cuenta_bp.get("/mi-plan")
 @cliente_requerido
 def mi_plan():
+    return _mostrar_informacion()
+
+
+@cuenta_bp.get("/mi-informacion")
+@cliente_requerido
+def mi_informacion():
+    return _mostrar_informacion()
+
+
+def _mostrar_informacion():
     try:
         cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
     except NoEncontrado:
@@ -55,7 +65,12 @@ def mi_plan():
         flash("Ingresá de nuevo con tu DNI y tu email.", "warning")
         return redirect(url_for("cuenta.ingresar"))
 
-    return render_template("cuenta/mi_plan.html", cliente=cliente)
+    return render_template(
+        "cuenta/mi_plan.html",
+        cliente=cliente,
+        solicitudes=[],
+        reclamos=[],
+    )
 
 
 @cuenta_bp.post("/salir")

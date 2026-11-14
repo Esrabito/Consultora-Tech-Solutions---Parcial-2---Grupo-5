@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block titulo %}Mi plan{% endblock %}
+{% block titulo %}Mi información{% endblock %}
 
 {% block contenido %}
 <nav aria-label="breadcrumb">
@@ -9,7 +9,7 @@
       <a href="{{ url_for('main.inicio') }}">Inicio</a>
     </li>
     <li class="breadcrumb-item active" aria-current="page">
-      Mi plan
+      Mi información
     </li>
   </ol>
 </nav>
@@ -26,31 +26,95 @@
   </form>
 </div>
 
-<div class="card shadow-sm">
-  <div class="card-body">
+<div class="row g-4">
+  <div class="col-12 col-xl-5">
+    <section class="card shadow-sm h-100" aria-labelledby="datos-personales-titulo">
+      <div class="card-body">
+        <h2 id="datos-personales-titulo" class="h5">
+          <i class="bi bi-person-vcard" aria-hidden="true"></i>
+          Mis datos personales
+        </h2>
 
-    <h2 class="h5">
-      <i class="bi bi-card-checklist"></i>
-      Mi plan contratado
-    </h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Nombre</dt>
+          <dd class="col-sm-8">{{ cliente.nombre }}</dd>
+          <dt class="col-sm-4">DNI</dt>
+          <dd class="col-sm-8">{{ cliente.dni }}</dd>
+          <dt class="col-sm-4">Email</dt>
+          <dd class="col-sm-8">{{ cliente.email }}</dd>
+          <dt class="col-sm-4">Teléfono</dt>
+          <dd class="col-sm-8 mb-0">{{ cliente.telefono }}</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
 
-    <p class="mb-3">
-      <strong>{{ cliente.plan.nombre_plan }}</strong>
-      <span class="text-muted">· $ {{ cliente.plan.valor_plan }}</span>
-    </p>
+  <div class="col-12 col-xl-7">
+    <section class="card shadow-sm h-100" aria-labelledby="plan-titulo">
+      <div class="card-body">
+        <h2 id="plan-titulo" class="h5">
+          <i class="bi bi-card-checklist" aria-hidden="true"></i>
+          Mi plan contratado
+        </h2>
 
-    <h3 class="h6">Servicios incluidos</h3>
+        <p class="mb-3">
+          <strong>{{ cliente.plan.nombre_plan }}</strong>
+          <span class="text-muted">· {{ cliente.plan.valor_plan|moneda }}</span>
+        </p>
 
-    {% if cliente.plan.servicios %}
-      <ul class="list-group">
-        {% for servicio in cliente.plan.servicios %}
-          <li class="list-group-item">{{ servicio.tipo_servicio }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="text-muted mb-0">Tu plan todavía no tiene servicios cargados.</p>
-    {% endif %}
+        <h3 class="h6">Servicios incluidos</h3>
 
+        {% if cliente.plan.servicios %}
+          <ul class="list-group">
+            {% for servicio in cliente.plan.servicios %}
+              <li class="list-group-item">{{ servicio.tipo_servicio }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Tu plan todavía no tiene servicios cargados.</p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <section class="card shadow-sm h-100" aria-labelledby="solicitudes-titulo">
+      <div class="card-body">
+        <h2 id="solicitudes-titulo" class="h5">
+          <i class="bi bi-chat-left-text" aria-hidden="true"></i>
+          Mis solicitudes
+        </h2>
+        {% if solicitudes %}
+          <ul class="list-group">
+            {% for solicitud in solicitudes %}
+              <li class="list-group-item">{{ solicitud }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No tenés solicitudes registradas.</p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <section class="card shadow-sm h-100" aria-labelledby="reclamos-titulo">
+      <div class="card-body">
+        <h2 id="reclamos-titulo" class="h5">
+          <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+          Mis reclamos
+        </h2>
+        {% if reclamos %}
+          <ul class="list-group">
+            {% for reclamo in reclamos %}
+              <li class="list-group-item">{{ reclamo }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No tenés reclamos registrados.</p>
+        {% endif %}
+      </div>
+    </section>
   </div>
 </div>
 {% endblock %}

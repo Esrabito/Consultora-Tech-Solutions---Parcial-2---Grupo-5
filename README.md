@@ -98,12 +98,12 @@ run.py              punto de entrada
 |---|---|---|---|
 | HU-07 | Gestionar servicios | 6 | Hecha |
 | HU-06 | Gestionar planes | 6 | En testing |
-| HU-01 | Registrar cliente (con elección de plan) | 6 | En testing (falta integrar VeriCheck y CRMMax en el registro) |
+| HU-01 | Registrar cliente (con elección de plan) | 6 | Hecha |
 | HU-25 | Validar identidad (VeriCheck) | 3 | Hecha |
-| HU-30 | Registrar clientes en CRMMax | 2 | Pendiente |
+| HU-30 | Registrar clientes en CRMMax | 2 | Hecha |
 | HU-31 | Consultar clientes registrados | 1 | En testing |
 | HU-04 | Gestionar clientes registrados (detalle) | 8 | En testing |
-| HU-03 | Consultar información personal | 2 | En testing |
+| HU-03 | Consultar información personal | 2 | Hecha |
 | HU-05 | Consultar planes y servicios contratados | 2 | En testing |
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
@@ -128,7 +128,9 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/clientes/<id>` | Detalle del cliente (solo lectura) | HU-04 |
 | `POST /admin/clientes/<id>/validar` | Valida la identidad del cliente con VeriCheck | HU-25 |
 | `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
-| `GET/POST /cliente/ingresar`, `GET /cliente/mi-plan` | Ingreso del cliente y consulta de su plan | HU-03 / HU-05 |
+| `GET/POST /cliente/ingresar` | Identificación del cliente mediante DNI y email | HU-03 / HU-05 |
+| `GET /cliente/mi-informacion` | Consulta de datos personales, plan, servicios, solicitudes y reclamos | HU-03 |
+| `GET /cliente/mi-plan` | Acceso compatible a la información del plan contratado | HU-05 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
@@ -144,9 +146,6 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET` | `/api/planes/<id>` | 200, 404 |
 | `PUT` | `/api/planes/<id>` | 200, 400, 404, 409 |
 | `DELETE` | `/api/planes/<id>` | 204, 404, 409 (tiene clientes) |
-| `GET` | `/api/clientes` | 200 |
-| `GET` | `/api/clientes/<id>` | 200, 404 |
-| `POST` | `/api/validaciones` | 200, 400 |
 Ejemplos de cuerpo:
 
 ```json
@@ -165,3 +164,13 @@ Ejemplos de cuerpo:
 ```
 
 `/api/validaciones` devuelve el `estado` de la validación (`VALIDADO` o `NO_VALIDADO`) y el `motivo` si no se validó. VeriCheck se simula dentro del sistema: un DNI con todos los dígitos iguales (por ejemplo `11111111`) queda `NO_VALIDADO`.
+
+### API REST relacionada con el registro de clientes
+
+| Método | Ruta | Descripción | HU | Respuestas |
+|---|---|---|---|---|
+| `GET` | `/api/clientes` | Lista los clientes registrados, incluyendo su plan | HU-31 | 200, 401 |
+| `GET` | `/api/clientes/<id>` | Obtiene el detalle de un cliente y su plan | HU-04 | 200, 401, 404 |
+| `POST` | `/api/validaciones` | Valida la identidad del cliente mediante VeriCheck | HU-25 | 200, 400, 401 |
+
+El alta del cliente se realiza mediante `GET/POST /cliente/registro` (HU-01). La API REST no expone actualmente un `POST /api/clientes`; los clientes creados desde el formulario quedan disponibles en los endpoints `GET` anteriores.
