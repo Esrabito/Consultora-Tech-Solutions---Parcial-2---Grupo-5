@@ -67,21 +67,32 @@ def solicitud_plan():
         return _cerrar_sesion_cliente()
 
     datos = request.form if request.method == "POST" else {}
-    if request.method == "POST":
-        try:
-            solicitud = solicitudes_service.crear_cambio_plan(cliente, datos)
-        except DatosInvalidos as error:
-            return _formulario_solicitud_plan(
-                cliente, datos, errores_para_formulario(error)
-            ), 400
+    return _manejar_solicitud(cliente, datos, "plan")
 
-        flash(
-            f"La solicitud N.º {solicitud.id_solicitud} fue registrada correctamente.",
-            "success",
-        )
-        return redirect(url_for("cuenta.mi_informacion"))
 
-    return _formulario_solicitud_plan(cliente, datos)
+@cuenta_bp.route("/solicitud", methods=["GET", "POST"])
+@cliente_requerido
+def solicitud():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+
+    datos = request.form if request.method == "POST" else {}
+    tipo_solicitud = datos.get("tipo_solicitud") or request.args.get("tipo_solicitud", "")
+    return _manejar_solicitud(cliente, datos, tipo_solicitud)
+
+
+@cuenta_bp.route("/solicitud-servicio", methods=["GET", "POST"])
+@cliente_requerido
+def solicitud_servicio():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+
+    datos = request.form if request.method == "POST" else {}
+    return _manejar_solicitud(cliente, datos, "servicio")
 
 
 def _mostrar_informacion():
@@ -98,14 +109,40 @@ def _mostrar_informacion():
     )
 
 
-def _formulario_solicitud_plan(cliente, datos, errores=None):
+def _formulario_solicitud(cliente, datos, tipo_solicitud="", errores=None):
     return render_template(
-        "cuenta/solicitud_plan.html",
+        "cuenta/solicitud.html",
         cliente=cliente,
         datos=datos,
+        tipo_solicitud=tipo_solicitud,
         errores=errores or {},
         planes=planes_service.listar_planes(),
     )
+
+
+def _manejar_solicitud(cliente, datos, tipo_solicitud):
+    if request.method == "GET":
+        return _formulario_solicitud(cliente, datos, tipo_solicitud)
+
+    try:
+        if tipo_solicitud == "plan":
+            solicitud_creada = solicitudes_service.crear_cambio_plan(cliente, datos)
+        elif tipo_solicitud == "servicio":
+            solicitud_creada = solicitudes_service.crear_modificacion_servicio(cliente, datos)
+        else:
+            raise DatosInvalidos(
+                {"tipo_solicitud": "Elegí si querés modificar el plan o un servicio."}
+            )
+    except DatosInvalidos as error:
+        return _formulario_solicitud(
+            cliente, datos, tipo_solicitud, errores_para_formulario(error)
+        ), 400
+
+    flash(
+        f"La solicitud N.º {solicitud_creada.id_solicitud} fue registrada correctamente.",
+        "success",
+    )
+    return redirect(url_for("cuenta.mi_informacion"))
 
 
 def _cerrar_sesion_cliente():

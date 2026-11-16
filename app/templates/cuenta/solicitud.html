@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block titulo %}Nueva solicitud{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Nueva solicitud</li>
+  </ol>
+</nav>
+
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Nueva solicitud</h1>
+    <p class="page-head__lead">
+      Elegí qué querés modificar para completar la solicitud correspondiente.
+    </p>
+  </div>
+</header>
+
+<div class="form-layout">
+  <div class="form-sheet">
+    {% if errores.general %}
+      <div class="notice notice--warning mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill notice__icon" aria-hidden="true"></i>
+        <p>{{ errores.general }}</p>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="mb-4">
+        <label for="tipo_solicitud" class="form-label">¿Qué querés modificar?</label>
+        <select id="tipo_solicitud" name="tipo_solicitud"
+                class="form-select {% if errores.tipo_solicitud %}is-invalid{% endif %}">
+          <option value="">Seleccioná una opción</option>
+          <option value="plan" {% if tipo_solicitud == "plan" %}selected{% endif %}>
+            Mi plan
+          </option>
+          <option value="servicio" {% if tipo_solicitud == "servicio" %}selected{% endif %}>
+            Un servicio contratado
+          </option>
+        </select>
+        {% if errores.tipo_solicitud %}
+          <div class="invalid-feedback">{{ errores.tipo_solicitud }}</div>
+        {% endif %}
+      </div>
+
+      <section id="form-plan" {% if tipo_solicitud != "plan" %}hidden{% endif %}
+               aria-labelledby="form-plan-titulo">
+        <h2 id="form-plan-titulo" class="h5">Solicitud de cambio de plan</h2>
+        {% if cliente.plan %}
+          <p class="alert alert-light border">
+            <strong>Plan actual:</strong> {{ cliente.plan.nombre_plan }}
+            · {{ cliente.plan.valor_plan|moneda }}
+          </p>
+          <div class="mb-4">
+            <label for="id_plan_solicitado" class="form-label">Nuevo plan</label>
+            <select id="id_plan_solicitado" name="id_plan_solicitado"
+                    class="form-select {% if errores.id_plan_solicitado %}is-invalid{% endif %}">
+              <option value="">Seleccioná un plan</option>
+              {% for plan in planes %}
+                <option value="{{ plan.id_plan }}"
+                        {% if datos.get('id_plan_solicitado')|string == plan.id_plan|string %}selected{% endif %}>
+                  {{ plan.nombre_plan }} · {{ plan.valor_plan|moneda }}
+                </option>
+              {% endfor %}
+            </select>
+            {% if errores.id_plan_solicitado %}
+              <div class="invalid-feedback">{{ errores.id_plan_solicitado }}</div>
+            {% endif %}
+          </div>
+        {% else %}
+          <p class="notice notice--warning" role="alert">
+            No podés solicitar un cambio porque no tenés un plan contratado.
+          </p>
+        {% endif %}
+      </section>
+
+      <section id="form-servicio" {% if tipo_solicitud != "servicio" %}hidden{% endif %}
+               aria-labelledby="form-servicio-titulo">
+        <h2 id="form-servicio-titulo" class="h5">Solicitud de modificación de servicio</h2>
+        {% if cliente.plan and cliente.plan.servicios %}
+          <div class="mb-4">
+            <label for="id_servicio" class="form-label">Servicio a modificar</label>
+            <select id="id_servicio" name="id_servicio"
+                    class="form-select {% if errores.id_servicio %}is-invalid{% endif %}">
+              <option value="">Seleccioná un servicio</option>
+              {% for servicio in cliente.plan.servicios %}
+                <option value="{{ servicio.id_servicio }}"
+                        {% if datos.get('id_servicio')|string == servicio.id_servicio|string %}selected{% endif %}>
+                  {{ servicio.tipo_servicio }}
+                </option>
+              {% endfor %}
+            </select>
+            {% if errores.id_servicio %}
+              <div class="invalid-feedback">{{ errores.id_servicio }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-4">
+            <label for="tipo_modificacion" class="form-label">Tipo de modificación</label>
+            <input type="text" id="tipo_modificacion" name="tipo_modificacion"
+                   maxlength="50"
+                   class="form-control {% if errores.tipo_modificacion %}is-invalid{% endif %}"
+                   value="{{ datos.get('tipo_modificacion', '') }}" required>
+            {% if errores.tipo_modificacion %}
+              <div class="invalid-feedback">{{ errores.tipo_modificacion }}</div>
+            {% endif %}
+          </div>
+        {% else %}
+          <p class="notice notice--warning" role="alert">
+            No podés solicitar una modificación porque no tenés servicios contratados.
+          </p>
+        {% endif %}
+      </section>
+
+      <div id="campo-motivo" class="mb-4" {% if not tipo_solicitud %}hidden{% endif %}>
+        <label for="motivo" class="form-label">Motivo de la solicitud o detalle</label>
+        <textarea id="motivo" name="motivo" rows="5" maxlength="500"
+                  class="form-control {% if errores.motivo %}is-invalid{% endif %}">{{ datos.get('motivo', '') }}</textarea>
+        {% if errores.motivo %}
+          <div class="invalid-feedback">{{ errores.motivo }}</div>
+        {% else %}
+          <div class="form-text">Describí el motivo de tu solicitud.</div>
+        {% endif %}
+      </div>
+
+      <div id="acciones-formulario" class="form-actions" {% if not tipo_solicitud %}hidden{% endif %}>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send" aria-hidden="true"></i>
+          Confirmar solicitud
+        </button>
+        <a href="{{ url_for('cuenta.mi_informacion') }}" class="btn btn-outline-secondary">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const selector = document.getElementById("tipo_solicitud");
+  const plan = document.getElementById("form-plan");
+  const servicio = document.getElementById("form-servicio");
+  const motivo = document.getElementById("campo-motivo");
+  const acciones = document.getElementById("acciones-formulario");
+
+  function actualizarFormulario() {
+    const tipo = selector.value;
+    plan.hidden = tipo !== "plan";
+    servicio.hidden = tipo !== "servicio";
+    motivo.hidden = !tipo;
+    acciones.hidden = !tipo;
+  }
+
+  selector.addEventListener("change", actualizarFormulario);
+</script>
+{% endblock %}

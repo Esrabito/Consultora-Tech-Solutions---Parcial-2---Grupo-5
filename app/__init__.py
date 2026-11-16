@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, jsonify, render_template, request
+from sqlalchemy import inspect, text
 
 from config import Config
 from app.extensions import csrf, db
@@ -26,8 +27,19 @@ def create_app(config_class=Config):
         from app import models  # noqa: F401  (registra los modelos antes de crear las tablas)
 
         db.create_all()
+        _agregar_columna_solicitud_servicio()
 
     return app
+
+
+def _agregar_columna_solicitud_servicio():
+    """Actualiza la tabla existente de solicitudes para HU-09."""
+    columnas = {columna["name"] for columna in inspect(db.engine).get_columns("solicitudes")}
+    if "id_servicio" not in columnas:
+        with db.engine.begin() as conexion:
+            conexion.execute(
+                text("ALTER TABLE solicitudes ADD COLUMN id_servicio INTEGER")
+            )
 
 
 def _validar_configuracion(app):

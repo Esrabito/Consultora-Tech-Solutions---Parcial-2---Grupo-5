@@ -198,6 +198,66 @@ class TestSolicitudCambioPlan:
         assert "diferente al actual" in respuesta.get_data(as_text=True)
 
 
+class TestSolicitudModificacionServicio:
+    def test_nueva_solicitud_muestra_selector_sin_formulario_inicial(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+        html = client.get("/cliente/solicitud").get_data(as_text=True)
+
+        assert "¿Qué querés modificar?" in html
+        assert 'value="plan"' in html
+        assert 'value="servicio"' in html
+        assert 'id="form-plan" hidden' in html
+        assert 'id="form-servicio" hidden' in html
+
+    def test_muestra_los_servicios_contratados(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+        html = client.get("/cliente/solicitud-servicio").get_data(as_text=True)
+
+        assert "Consultoría legal" in html
+        assert "Asesoría contable" in html
+        assert "Tipo de modificación" in html
+
+    def test_registra_solicitud_pendiente_del_servicio(self, app, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+        respuesta = client.post(
+            "/cliente/solicitud-servicio",
+            data={
+                "id_servicio": "1",
+                "tipo_modificacion": "Ampliación",
+                "motivo": "Necesito ampliar esta prestación.",
+            },
+        )
+
+        assert respuesta.status_code == 302
+        assert respuesta.headers["Location"].endswith("/cliente/mi-informacion")
+        with app.app_context():
+            solicitud = db.session.scalar(
+                db.select(Solicitud).where(Solicitud.id_servicio == 1)
+            )
+            assert solicitud.estado == "Pendiente"
+            assert solicitud.id_cliente == ana
+            assert solicitud.id_servicio == 1
+            assert solicitud.tipo_modificacion == "Ampliación"
+
+    def test_no_permite_un_servicio_que_no_pertenece_al_plan(self, app, client, ana):
+        with app.app_context():
+            servicio = servicios_service.crear_servicio({"tipo_servicio": "Servicio externo"})
+            servicio_id = servicio.id_servicio
+
+        client.post("/cliente/ingresar", data=ANA)
+        respuesta = client.post(
+            "/cliente/solicitud-servicio",
+            data={
+                "id_servicio": str(servicio_id),
+                "tipo_modificacion": "Cambio",
+                "motivo": "No debería permitirse.",
+            },
+        )
+
+        assert respuesta.status_code == 400
+        assert "no pertenece a tu plan" in respuesta.get_data(as_text=True)
+
+
 class TestSalir:
     def test_salir_quita_el_acceso(self, client, ana):
         client.post("/cliente/ingresar", data=ANA)

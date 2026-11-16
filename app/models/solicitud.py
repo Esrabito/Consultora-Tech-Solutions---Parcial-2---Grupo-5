@@ -27,10 +27,16 @@ class Solicitud(db.Model):
         db.ForeignKey("planes.id_plan", ondelete="RESTRICT"),
         nullable=False,
     )
+    id_servicio = db.Column(
+        db.Integer,
+        db.ForeignKey("servicios.id_servicio", ondelete="RESTRICT"),
+        nullable=True,
+    )
 
     cliente = db.relationship("Cliente", back_populates="solicitudes")
     plan_actual = db.relationship("Plan", foreign_keys=[id_plan_actual])
     plan_solicitado = db.relationship("Plan", foreign_keys=[id_plan_solicitado])
+    servicio = db.relationship("Servicio")
 
     def __repr__(self):
         return f"<Solicitud {self.id_solicitud} {self.estado!r}>"

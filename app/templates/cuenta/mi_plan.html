@@ -84,7 +84,7 @@
           <i class="bi bi-chat-left-text" aria-hidden="true"></i>
           Mis solicitudes
         </h2>
-        <a href="{{ url_for('cuenta.solicitud_plan') }}" class="btn btn-outline-primary btn-sm mb-3">
+        <a href="{{ url_for('cuenta.solicitud') }}" class="btn btn-outline-primary btn-sm mb-3">
           <i class="bi bi-plus-lg" aria-hidden="true"></i>
           Nueva solicitud
         </a>
@@ -97,6 +97,11 @@
                   {{ solicitud.plan_actual.nombre_plan }} → {{ solicitud.plan_solicitado.nombre_plan }}
                   · Estado: {{ solicitud.estado }}
                 </span>
+                {% if solicitud.servicio %}
+                  <span class="d-block text-muted">
+                    Servicio: {{ solicitud.servicio.tipo_servicio }}
+                  </span>
+                {% endif %}
                 <span class="d-block">{{ solicitud.motivo }}</span>
               </li>
             {% endfor %}
