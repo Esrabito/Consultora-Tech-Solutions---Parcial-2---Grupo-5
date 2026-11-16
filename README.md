@@ -107,6 +107,7 @@ run.py              punto de entrada
 | HU-05 | Consultar planes y servicios contratados | 2 | Hecha |
 | HU-08 | Solicitar modificación de plan | 2 | Hecha |
 | HU-09 | Solicitar modificación de servicio | 2 | Hecha |
+| HU-36 | Consultar solicitudes propias | — | Hecha |
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 
@@ -136,6 +137,7 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET/POST /cliente/solicitud` | Formulario unificado para solicitar un cambio de plan o una modificación de servicio | HU-08 / HU-09 |
 | `GET/POST /cliente/solicitud-plan` | Solicita un cambio de plan indicando el nuevo plan y el motivo | HU-08 |
 | `GET/POST /cliente/solicitud-servicio` | Solicita una modificación sobre un servicio contratado | HU-09 |
+| `GET /cliente/solicitudes` | Consulta las solicitudes propias, su estado, fecha y resultado | HU-36 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mis solicitudes{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Mis solicitudes</li>
+  </ol>
+</nav>
+
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Mis solicitudes</h1>
+    <p class="page-head__lead">
+      Seguimiento de las solicitudes realizadas por {{ cliente.nombre }}.
+    </p>
+  </div>
+  <div class="page-head__actions">
+    <a href="{{ url_for('cuenta.solicitud') }}" class="btn btn-primary">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva solicitud
+    </a>
+  </div>
+</header>
+
+{% if solicitudes %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Solicitudes del cliente</caption>
+      <thead>
+        <tr>
+          <th scope="col">N.º</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Fecha de creación</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for solicitud in solicitudes %}
+          <tr>
+            <td data-label="N.º">{{ solicitud.id_solicitud }}</td>
+            <td data-label="Tipo">
+              {{ solicitud.tipo_modificacion }}
+              {% if solicitud.servicio %}
+                <span class="d-block text-muted">Servicio: {{ solicitud.servicio.tipo_servicio }}</span>
+              {% endif %}
+            </td>
+            <td data-label="Fecha de creación">
+              {% if solicitud.fecha_creacion %}
+                {{ solicitud.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}
+              {% else %}
+                No disponible
+              {% endif %}
+            </td>
+            <td data-label="Estado">{{ solicitud.estado }}</td>
+            <td data-label="Resultado">
+              {% if solicitud.estado in ("Rechazada", "Resuelta") %}
+                {{ solicitud.resultado or "Sin resultado informado." }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true">
+      <i class="bi bi-inbox"></i>
+    </span>
+    <h2>No tenés solicitudes registradas</h2>
+    <p>Cuando realices una solicitud, vas a poder consultar acá su estado y resultado.</p>
+    <a href="{{ url_for('cuenta.solicitud') }}" class="btn btn-primary">
+      Nueva solicitud
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

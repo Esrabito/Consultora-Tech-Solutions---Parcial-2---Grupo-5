@@ -8,6 +8,7 @@ administrador (ver app/routes/auth.py).
 from functools import wraps
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.services import clientes as clientes_service
 from app.services import planes as planes_service
@@ -56,6 +57,25 @@ def mi_plan():
 @cliente_requerido
 def mi_informacion():
     return _mostrar_informacion()
+
+
+@cuenta_bp.get("/solicitudes")
+@cliente_requerido
+def solicitudes():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+        solicitudes_cliente = solicitudes_service.listar_por_cliente(cliente.id_cliente)
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+    except SQLAlchemyError:
+        flash("No se pudieron recuperar tus solicitudes. Intentá nuevamente.", "danger")
+        return redirect(url_for("cuenta.mi_informacion"))
+
+    return render_template(
+        "cuenta/solicitudes.html",
+        cliente=cliente,
+        solicitudes=solicitudes_cliente,
+    )
 
 
 @cuenta_bp.route("/solicitud-plan", methods=["GET", "POST"])

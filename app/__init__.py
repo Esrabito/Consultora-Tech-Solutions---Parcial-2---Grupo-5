@@ -27,18 +27,31 @@ def create_app(config_class=Config):
         from app import models  # noqa: F401  (registra los modelos antes de crear las tablas)
 
         db.create_all()
-        _agregar_columna_solicitud_servicio()
+        _actualizar_columnas_solicitudes()
 
     return app
 
 
-def _agregar_columna_solicitud_servicio():
-    """Actualiza la tabla existente de solicitudes para HU-09."""
+def _actualizar_columnas_solicitudes():
+    """Actualiza la tabla existente de solicitudes para las HUs de solicitudes."""
     columnas = {columna["name"] for columna in inspect(db.engine).get_columns("solicitudes")}
-    if "id_servicio" not in columnas:
-        with db.engine.begin() as conexion:
+    faltantes = {
+        "id_servicio": "INTEGER",
+        "fecha_creacion": "DATETIME",
+        "resultado": "VARCHAR(500)",
+    }
+    with db.engine.begin() as conexion:
+        for nombre, tipo in faltantes.items():
+            if nombre not in columnas:
+                conexion.execute(
+                    text(f"ALTER TABLE solicitudes ADD COLUMN {nombre} {tipo}")
+                )
+        if "fecha_creacion" not in columnas:
             conexion.execute(
-                text("ALTER TABLE solicitudes ADD COLUMN id_servicio INTEGER")
+                text(
+                    "UPDATE solicitudes SET fecha_creacion = CURRENT_TIMESTAMP "
+                    "WHERE fecha_creacion IS NULL"
+                )
             )
 
 

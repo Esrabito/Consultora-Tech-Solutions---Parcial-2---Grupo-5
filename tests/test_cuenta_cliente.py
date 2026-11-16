@@ -180,6 +180,7 @@ class TestSolicitudCambioPlan:
         with app.app_context():
             solicitud = db.session.scalar(db.select(Solicitud))
             assert solicitud.estado == "Pendiente"
+            assert solicitud.fecha_creacion is not None
             assert solicitud.adjunto is None
             assert solicitud.motivo == "Necesito más prestaciones para mi actividad."
             assert solicitud.tipo_modificacion == "Cambio de plan"
@@ -238,6 +239,34 @@ class TestSolicitudModificacionServicio:
             assert solicitud.id_cliente == ana
             assert solicitud.id_servicio == 1
             assert solicitud.tipo_modificacion == "Ampliación"
+
+    def test_consulta_solicitudes_muestra_datos_de_seguimiento(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+        client.post(
+            "/cliente/solicitud-servicio",
+            data={
+                "id_servicio": "1",
+                "tipo_modificacion": "Ampliación",
+                "motivo": "Necesito ampliar esta prestación.",
+            },
+        )
+
+        respuesta = client.get("/cliente/solicitudes")
+        html = respuesta.get_data(as_text=True)
+
+        assert respuesta.status_code == 200
+        assert "Mis solicitudes" in html
+        assert "N.º" in html
+        assert "Ampliación" in html
+        assert "Pendiente" in html
+        assert "Fecha de creación" in html
+
+    def test_consulta_sin_solicitudes_muestra_aviso(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+
+        html = client.get("/cliente/solicitudes").get_data(as_text=True)
+
+        assert "No tenés solicitudes registradas" in html
 
     def test_no_permite_un_servicio_que_no_pertenece_al_plan(self, app, client, ana):
         with app.app_context():
