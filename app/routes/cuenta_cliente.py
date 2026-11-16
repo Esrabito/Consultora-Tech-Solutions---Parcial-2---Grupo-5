@@ -1,4 +1,4 @@
-"""Ingreso y cuenta del cliente (HU-05 / HU-03, CU-9).
+"""Ingreso, cuenta y solicitudes del cliente (HU-03 / HU-05 / HU-08, CU-9).
 
 El cliente se identifica con DNI y email, sin contraseña (decisión 4 del equipo).
 Una vez identificado queda en la sesión con su propia clave, separada de la del
@@ -10,6 +10,8 @@ from functools import wraps
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from app.services import clientes as clientes_service
+from app.services import planes as planes_service
+from app.services import solicitudes as solicitudes_service
 from app.services.errores import DatosInvalidos, NoEncontrado, errores_para_formulario
 
 cuenta_bp = Blueprint("cuenta", __name__, url_prefix="/cliente")
@@ -56,21 +58,60 @@ def mi_informacion():
     return _mostrar_informacion()
 
 
+@cuenta_bp.route("/solicitud-plan", methods=["GET", "POST"])
+@cliente_requerido
+def solicitud_plan():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+
+    datos = request.form if request.method == "POST" else {}
+    if request.method == "POST":
+        try:
+            solicitud = solicitudes_service.crear_cambio_plan(cliente, datos)
+        except DatosInvalidos as error:
+            return _formulario_solicitud_plan(
+                cliente, datos, errores_para_formulario(error)
+            ), 400
+
+        flash(
+            f"La solicitud N.º {solicitud.id_solicitud} fue registrada correctamente.",
+            "success",
+        )
+        return redirect(url_for("cuenta.mi_informacion"))
+
+    return _formulario_solicitud_plan(cliente, datos)
+
+
 def _mostrar_informacion():
     try:
         cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
     except NoEncontrado:
-        # La sesión apunta a un cliente que ya no existe: la cerramos.
-        session.pop(CLAVE_SESION_CLIENTE, None)
-        flash("Ingresá de nuevo con tu DNI y tu email.", "warning")
-        return redirect(url_for("cuenta.ingresar"))
+        return _cerrar_sesion_cliente()
 
     return render_template(
         "cuenta/mi_plan.html",
         cliente=cliente,
-        solicitudes=[],
+        solicitudes=solicitudes_service.listar_por_cliente(cliente.id_cliente),
         reclamos=[],
     )
+
+
+def _formulario_solicitud_plan(cliente, datos, errores=None):
+    return render_template(
+        "cuenta/solicitud_plan.html",
+        cliente=cliente,
+        datos=datos,
+        errores=errores or {},
+        planes=planes_service.listar_planes(),
+    )
+
+
+def _cerrar_sesion_cliente():
+    session.pop(CLAVE_SESION_CLIENTE, None)
+    flash("Ingresá de nuevo con tu DNI y tu email.", "warning")
+    return redirect(url_for("cuenta.ingresar"))
 
 
 @cuenta_bp.post("/salir")

@@ -1,0 +1,36 @@
+from app.extensions import db
+
+
+class Solicitud(db.Model):
+    """Solicitud realizada por un cliente."""
+
+    __tablename__ = "solicitudes"
+
+    id_solicitud = db.Column(db.Integer, primary_key=True)
+    estado = db.Column(db.String(20), nullable=False, default="Pendiente")
+    adjunto = db.Column(db.String(255), nullable=True)
+    motivo = db.Column(db.String(500), nullable=False)
+    tipo_modificacion = db.Column(db.String(50), nullable=False)
+
+    id_cliente = db.Column(
+        db.Integer,
+        db.ForeignKey("clientes.id_cliente", ondelete="CASCADE"),
+        nullable=False,
+    )
+    id_plan_actual = db.Column(
+        db.Integer,
+        db.ForeignKey("planes.id_plan", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    id_plan_solicitado = db.Column(
+        db.Integer,
+        db.ForeignKey("planes.id_plan", ondelete="RESTRICT"),
+        nullable=False,
+    )
+
+    cliente = db.relationship("Cliente", back_populates="solicitudes")
+    plan_actual = db.relationship("Plan", foreign_keys=[id_plan_actual])
+    plan_solicitado = db.relationship("Plan", foreign_keys=[id_plan_solicitado])
+
+    def __repr__(self):
+        return f"<Solicitud {self.id_solicitud} {self.estado!r}>"

@@ -72,5 +72,21 @@
       </a>
     </div>
   </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-inbox" aria-hidden="true"></i>
+        Solicitudes
+      </h2>
+      <p class="module__count">
+        {{ solicitudes_pendientes }}
+        {% if solicitudes_pendientes == 1 %}pendiente{% else %}pendientes{% endif %}
+      </p>
+    </div>
+    <p class="module__desc">
+      Solicitudes de cambio de plan realizadas por los clientes.
+    </p>
+  </article>
 </section>
 {% endblock %}

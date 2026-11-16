@@ -29,6 +29,11 @@ class Cliente(db.Model):
             lazy=True
         )
     )
+    solicitudes = db.relationship(
+        "Solicitud",
+        back_populates="cliente",
+        cascade="all, delete-orphan",
+    )
 
     def a_dict(self):
         return {

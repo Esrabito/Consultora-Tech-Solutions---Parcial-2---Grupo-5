@@ -3,7 +3,7 @@
 import pytest
 
 from app.extensions import db
-from app.models import Cliente
+from app.models import Cliente, Solicitud
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
 
@@ -142,6 +142,60 @@ class TestMiPlan:
         assert respuesta.status_code == 302
         assert respuesta.headers["Location"].endswith("/cliente/ingresar")
         assert client.get("/cliente/mi-plan").status_code == 302
+
+
+class TestSolicitudCambioPlan:
+    def test_muestra_plan_actual_y_planes_disponibles(self, app, client, ana):
+        with app.app_context():
+            nuevo_plan = planes_service.crear_plan(
+                {"nombre_plan": "Plan Premium", "valor_plan": "25000", "servicios": [1]}
+            )
+            id_nuevo_plan = nuevo_plan.id_plan
+
+        client.post("/cliente/ingresar", data=ANA)
+        html = client.get("/cliente/solicitud-plan").get_data(as_text=True)
+
+        assert "Plan Básico" in html
+        assert "Plan Premium" in html
+        assert "Motivo de la solicitud" in html
+
+    def test_registra_solicitud_pendiente_asociada_al_cliente(self, app, client, ana):
+        with app.app_context():
+            nuevo_plan = planes_service.crear_plan(
+                {"nombre_plan": "Plan Premium", "valor_plan": "25000", "servicios": [1]}
+            )
+            id_nuevo_plan = nuevo_plan.id_plan
+
+        client.post("/cliente/ingresar", data=ANA)
+        respuesta = client.post(
+            "/cliente/solicitud-plan",
+            data={
+                "id_plan_solicitado": str(id_nuevo_plan),
+                "motivo": "Necesito más prestaciones para mi actividad.",
+            },
+        )
+
+        assert respuesta.status_code == 302
+        assert respuesta.headers["Location"].endswith("/cliente/mi-informacion")
+        with app.app_context():
+            solicitud = db.session.scalar(db.select(Solicitud))
+            assert solicitud.estado == "Pendiente"
+            assert solicitud.adjunto is None
+            assert solicitud.motivo == "Necesito más prestaciones para mi actividad."
+            assert solicitud.tipo_modificacion == "Cambio de plan"
+            assert solicitud.id_cliente == ana
+            assert solicitud.id_plan_actual == 1
+            assert solicitud.id_plan_solicitado == id_nuevo_plan
+
+    def test_no_permite_solicitar_el_plan_actual(self, app, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+        respuesta = client.post(
+            "/cliente/solicitud-plan",
+            data={"id_plan_solicitado": "1", "motivo": "Quiero cambiar de plan."},
+        )
+
+        assert respuesta.status_code == 400
+        assert "diferente al actual" in respuesta.get_data(as_text=True)
 
 
 class TestSalir:

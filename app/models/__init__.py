@@ -7,5 +7,6 @@ que db.create_all() lo registre.
 from app.models.plan import Plan, plan_servicio
 from app.models.servicio import Servicio
 from app.models.cliente import Cliente
+from app.models.solicitud import Solicitud
 
-__all__ = ["Plan", "Servicio", "plan_servicio", "Cliente"]
+__all__ = ["Plan", "Servicio", "plan_servicio", "Cliente", "Solicitud"]

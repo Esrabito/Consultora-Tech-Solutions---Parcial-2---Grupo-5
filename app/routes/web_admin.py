@@ -4,6 +4,7 @@ from app.routes.auth import admin_requerido
 from app.services import clientes as clientes_service
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
+from app.services import solicitudes as solicitudes_service
 from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado, errores_para_formulario
 
@@ -18,6 +19,7 @@ def inicio():
         total_servicios=len(servicios_service.listar_servicios()),
         total_planes=len(planes_service.listar_planes()),
         total_clientes=len(clientes_service.listar_clientes()),
+        solicitudes_pendientes=solicitudes_service.cantidad_pendientes(),
     )
 
 
