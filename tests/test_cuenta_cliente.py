@@ -97,11 +97,14 @@ class TestMiPlan:
             "ana@example.com",
             "1155550000",
             "Mis solicitudes",
+            "Nueva solicitud",
             "No tenés solicitudes registradas.",
             "Mis reclamos",
+            "Nuevo reclamo",
             "No tenés reclamos registrados.",
         ]:
             assert dato in html
+        assert "Administración" not in html
 
     def test_cada_cliente_ve_solo_su_propio_plan(self, app, client, ana):
         with app.app_context():

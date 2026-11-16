@@ -104,7 +104,7 @@ run.py              punto de entrada
 | HU-31 | Consultar clientes registrados | 1 | En testing |
 | HU-04 | Gestionar clientes registrados (detalle) | 8 | En testing |
 | HU-03 | Consultar información personal | 2 | Hecha |
-| HU-05 | Consultar planes y servicios contratados | 2 | En testing |
+| HU-05 | Consultar planes y servicios contratados | 2 | Hecha |
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 
@@ -130,7 +130,7 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
 | `GET/POST /cliente/ingresar` | Identificación del cliente mediante DNI y email | HU-03 / HU-05 |
 | `GET /cliente/mi-informacion` | Consulta de datos personales, plan, servicios, solicitudes y reclamos | HU-03 |
-| `GET /cliente/mi-plan` | Acceso compatible a la información del plan contratado | HU-05 |
+| `GET /cliente/mi-plan` | Consulta del plan, su valor y los servicios asociados | HU-05 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
