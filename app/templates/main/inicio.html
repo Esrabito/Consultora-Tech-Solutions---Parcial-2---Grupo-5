@@ -24,6 +24,15 @@
         <a href="{{ url_for('cliente.registro') }}" class="btn btn-primary btn-lg">
           Registrarme
         </a>
+      {% if session.get('id_cliente') %}
+          <a href="{{ url_for('cuenta.mi_plan') }}" class="btn btn-outline-ink btn-lg">
+            Mi plan
+          </a>
+      {% else %}
+          <a href="{{ url_for('cuenta.ingresar') }}" class="btn btn-outline-ink btn-lg">
+            Ya soy cliente
+          </a>
+      {% endif %}
         <a href="{{ url_for('auth.login') }}" class="btn btn-outline-ink btn-lg">
           Ingresar al panel
         </a>

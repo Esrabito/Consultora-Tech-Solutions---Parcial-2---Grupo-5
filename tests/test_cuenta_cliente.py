@@ -84,6 +84,7 @@ class TestMiPlan:
         assert "Plan Básico" in html
         assert "Consultoría legal" in html
         assert "Asesoría contable" in html
+        assert "$ 15.000,00" in html
 
     def test_muestra_informacion_personal_y_gestiones_sin_registros(self, client, ana):
         client.post("/cliente/ingresar", data=ANA)
@@ -304,3 +305,19 @@ class TestSalir:
 
         assert respuesta.status_code == 302
         assert "/admin/login" in respuesta.headers["Location"]
+
+class TestEnlaceEnElInicio:
+    def test_el_inicio_ofrece_el_ingreso_del_cliente(self, client):
+        html = client.get("/").get_data(as_text=True)
+
+        assert 'href="/cliente/ingresar"' in html
+
+    def test_si_el_cliente_ya_ingreso_el_inicio_ofrece_su_plan(self, client, ana):
+        client.post("/cliente/ingresar", data=ANA)
+
+        html = client.get("/").get_data(as_text=True)
+
+        assert 'href="/cliente/mi-plan"' in html
+        assert 'href="/cliente/ingresar"' not in html
+
+        

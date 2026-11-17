@@ -153,6 +153,10 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET` | `/api/planes/<id>` | 200, 404 |
 | `PUT` | `/api/planes/<id>` | 200, 400, 404, 409 |
 | `DELETE` | `/api/planes/<id>` | 204, 404, 409 (tiene clientes) |
+| `GET` | `/api/clientes` | 200 |
+| `GET` | `/api/clientes/<id>` | 200, 404 |
+| `POST` | `/api/validaciones` | 200, 400 |
+
 Ejemplos de cuerpo:
 
 ```json
