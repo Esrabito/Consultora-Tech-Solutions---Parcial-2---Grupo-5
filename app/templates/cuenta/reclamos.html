@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mis reclamos{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Mis reclamos</li>
+  </ol>
+</nav>
+
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Mis reclamos</h1>
+    <p class="page-head__lead">
+      Seguimiento de los reclamos realizados por {{ cliente.nombre }}.
+    </p>
+  </div>
+  <div class="page-head__actions">
+    <a href="{{ url_for('cuenta.reclamo') }}" class="btn btn-primary">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo reclamo
+    </a>
+  </div>
+</header>
+
+{% if reclamos %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Reclamos del cliente</caption>
+      <thead>
+        <tr>
+          <th scope="col">N.º</th>
+          <th scope="col">Fecha de creación</th>
+          <th scope="col">Detalle</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Respuesta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in reclamos %}
+          <tr>
+            <td data-label="N.º">{{ item.id_reclamo }}</td>
+            <td data-label="Fecha de creación">
+              {% if item.fecha_creacion %}
+                {{ item.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}
+              {% else %}
+                No disponible
+              {% endif %}
+            </td>
+            <td data-label="Detalle">{{ item.mensaje_reclamo }}</td>
+            <td data-label="Estado">{{ item.estado_reclamo }}</td>
+            <td data-label="Respuesta">
+              {% if item.estado_reclamo in ("Resuelto", "Cerrado") %}
+                {{ item.mensaje_respuesta or "Sin respuesta informada." }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true">
+      <i class="bi bi-inbox"></i>
+    </span>
+    <h2>No tenés reclamos registrados</h2>
+    <p>Cuando realices un reclamo, vas a poder consultar acá su estado y respuesta.</p>
+    <a href="{{ url_for('cuenta.reclamo') }}" class="btn btn-primary">
+      Nuevo reclamo
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

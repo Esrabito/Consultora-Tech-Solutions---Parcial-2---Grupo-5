@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.services import clientes as clientes_service
 from app.services import planes as planes_service
 from app.services import solicitudes as solicitudes_service
+from app.services import reclamos as reclamos_service
 from app.services.errores import DatosInvalidos, NoEncontrado, errores_para_formulario
 
 cuenta_bp = Blueprint("cuenta", __name__, url_prefix="/cliente")
@@ -124,7 +125,7 @@ def _mostrar_informacion():
         "cuenta/mi_plan.html",
         cliente=cliente,
         solicitudes=solicitudes_service.listar_por_cliente(cliente.id_cliente),
-        reclamos=[],
+        reclamos=reclamos_service.listar_por_cliente(cliente.id_cliente),
     )
 
 
@@ -179,3 +180,50 @@ def salir():
 
 def _formulario_ingreso(datos, errores=None):
     return render_template("cuenta/ingresar.html", datos=datos, errores=errores or {})
+
+@cuenta_bp.get("/reclamos")
+@cliente_requerido
+def reclamos():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+        reclamos_cliente = reclamos_service.listar_por_cliente(cliente.id_cliente)
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+    except SQLAlchemyError:
+        flash("No se pudieron recuperar tus reclamos. Intentá nuevamente.", "danger")
+        return redirect(url_for("cuenta.mi_informacion"))
+
+    return render_template(
+        "cuenta/reclamos.html",
+        cliente=cliente,
+        reclamos=reclamos_cliente,
+    )
+
+
+@cuenta_bp.route("/reclamo", methods=["GET", "POST"])
+@cliente_requerido
+def reclamo():
+    try:
+        cliente = clientes_service.obtener_cliente(session[CLAVE_SESION_CLIENTE])
+    except NoEncontrado:
+        return _cerrar_sesion_cliente()
+
+    datos = request.form if request.method == "POST" else {}
+    if request.method == "GET":
+        return render_template("cuenta/reclamo.html", cliente=cliente, datos=datos, errores={})
+
+    try:
+        reclamo_creado = reclamos_service.crear_reclamo(cliente, datos)
+    except DatosInvalidos as error:
+        return render_template(
+            "cuenta/reclamo.html",
+            cliente=cliente,
+            datos=datos,
+            errores=errores_para_formulario(error),
+        ), 400
+
+    flash(
+        f"El reclamo N.º {reclamo_creado.id_reclamo} fue registrado correctamente.",
+        "success",
+    )
+    return redirect(url_for("cuenta.mi_informacion"))
