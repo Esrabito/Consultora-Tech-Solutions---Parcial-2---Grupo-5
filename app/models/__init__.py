@@ -8,5 +8,12 @@ from app.models.plan import Plan, plan_servicio
 from app.models.servicio import Servicio
 from app.models.cliente import Cliente
 from app.models.solicitud import Solicitud
+from app.models.plan import Plan, plan_servicio
+from app.models.servicio import Servicio
+from app.models.cliente import Cliente
+from app.models.solicitud import Solicitud
+from app.models.reclamo import Reclamo
 
-__all__ = ["Plan", "Servicio", "plan_servicio", "Cliente", "Solicitud"]
+__all__ = ["Plan", "Servicio", "plan_servicio", "Cliente", "Solicitud", "Reclamo"]
+
+

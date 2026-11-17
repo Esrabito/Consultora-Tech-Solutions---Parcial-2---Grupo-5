@@ -35,6 +35,12 @@ class Cliente(db.Model):
         cascade="all, delete-orphan",
     )
 
+    reclamos = db.relationship(
+        "Reclamo",
+        back_populates="cliente",
+        cascade="all, delete-orphan",
+    )
+    
     def a_dict(self):
         return {
             "id_cliente": self.id_cliente,
