@@ -85,8 +85,13 @@
       </p>
     </div>
     <p class="module__desc">
-      Solicitudes de cambio de plan realizadas por los clientes.
+      Solicitudes de cambio de plan y de modificación de servicios de los clientes.
     </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.listar_solicitudes') }}" class="btn btn-outline-ink">
+        Ver solicitudes
+      </a>
+    </div>
   </article>
 </section>
 {% endblock %}

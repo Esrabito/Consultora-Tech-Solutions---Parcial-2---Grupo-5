@@ -3,9 +3,13 @@
 from app.extensions import db
 from app.models import Plan, Servicio, Solicitud
 from app.services.comun import guardar_cambios, texto_obligatorio
-from app.services.errores import DatosInvalidos
+from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
 TIPO_CAMBIO_PLAN = "Cambio de plan"
+
+ESTADO_PENDIENTE = "Pendiente"
+ESTADO_APROBADA = "Aprobada"
+ESTADO_RECHAZADA = "Rechazada"
 
 
 def listar_por_cliente(id_cliente):
@@ -101,3 +105,47 @@ def _validar_servicio_contratado(cliente, datos):
             {"id_servicio": "El servicio seleccionado no pertenece a tu plan."}
         )
     return servicio
+
+
+# ---------------------------------------------------------------------------
+# HU-14 / HU-11 / HU-12: gestión de solicitudes por el administrador
+# ---------------------------------------------------------------------------
+
+
+def listar_todas():
+    """Todas las solicitudes, las más nuevas primero (HU-14)."""
+    consulta = db.select(Solicitud).order_by(Solicitud.id_solicitud.desc())
+    return db.session.scalars(consulta).all()
+
+
+def obtener_solicitud(id_solicitud):
+    solicitud = db.session.get(Solicitud, id_solicitud)
+    if solicitud is None:
+        raise NoEncontrado("La solicitud no existe.")
+    return solicitud
+
+
+def aprobar_solicitud(id_solicitud, datos):
+    """Aprueba una solicitud pendiente. El comentario es opcional (HU-11)."""
+    solicitud = obtener_solicitud(id_solicitud)
+    comentario = " ".join(str(datos.get("resultado") or "").split())
+    if len(comentario) > 500:
+        raise DatosInvalidos({"resultado": "El comentario no puede superar los 500 caracteres."})
+    return _resolver(solicitud, ESTADO_APROBADA, comentario or "Solicitud aprobada.")
+
+
+def rechazar_solicitud(id_solicitud, datos):
+    """Rechaza una solicitud pendiente. El motivo es obligatorio (HU-12)."""
+    solicitud = obtener_solicitud(id_solicitud)
+    motivo = texto_obligatorio(datos, "resultado", "El motivo del rechazo", 5, 500)
+    return _resolver(solicitud, ESTADO_RECHAZADA, motivo)
+
+
+def _resolver(solicitud, estado, resultado):
+    # Una solicitud se resuelve una sola vez: así no se pisa una decisión ya tomada.
+    if solicitud.estado != ESTADO_PENDIENTE:
+        raise Conflicto(f"La solicitud ya fue resuelta (estado: {solicitud.estado}).")
+    solicitud.estado = estado
+    solicitud.resultado = resultado
+    guardar_cambios()
+    return solicitud

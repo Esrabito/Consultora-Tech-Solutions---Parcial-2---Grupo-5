@@ -44,5 +44,19 @@ class Solicitud(db.Model):
     plan_solicitado = db.relationship("Plan", foreign_keys=[id_plan_solicitado])
     servicio = db.relationship("Servicio")
 
+    def a_dict(self):
+        return {
+            "id_solicitud": self.id_solicitud,
+            "id_cliente": self.id_cliente,
+            "tipo_modificacion": self.tipo_modificacion,
+            "estado": self.estado,
+            "motivo": self.motivo,
+            "resultado": self.resultado,
+            "fecha_creacion": self.fecha_creacion.isoformat() if self.fecha_creacion else None,
+            "plan_actual": self.plan_actual.nombre_plan,
+            "plan_solicitado": self.plan_solicitado.nombre_plan,
+            "servicio": self.servicio.tipo_servicio if self.servicio else None,
+        }
+
     def __repr__(self):
         return f"<Solicitud {self.id_solicitud} {self.estado!r}>"

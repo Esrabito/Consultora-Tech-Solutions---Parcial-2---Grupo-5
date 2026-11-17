@@ -97,17 +97,20 @@ run.py              punto de entrada
 | HU | Nombre | SP | Estado |
 |---|---|---|---|
 | HU-07 | Gestionar servicios | 6 | Hecha |
-| HU-06 | Gestionar planes | 6 | En testing |
+| HU-06 | Gestionar planes | 6 | Hecha |
 | HU-01 | Registrar cliente (con elección de plan) | 6 | Hecha |
 | HU-25 | Validar identidad (VeriCheck) | 3 | Hecha |
 | HU-30 | Registrar clientes en CRMMax (simulado) | 2 | En testing |
-| HU-31 | Consultar clientes registrados | 1 | En testing |
-| HU-04 | Gestionar clientes registrados (detalle) | 8 | En testing |
+| HU-31 | Consultar clientes registrados | 1 | Hecha |
+| HU-04 | Gestionar clientes registrados (detalle) | 8 | Hecha |
 | HU-03 | Consultar información personal | 2 | Hecha |
 | HU-05 | Consultar planes y servicios contratados | 2 | Hecha |
 | HU-08 | Solicitar modificación de plan | 2 | Hecha |
 | HU-09 | Solicitar modificación de servicio | 2 | Hecha |
 | HU-36 | Consultar solicitudes propias | — | Hecha |
+| HU-14 | Consultar solicitudes (administrador) | 1 | En testing |
+| HU-11 | Aprobar solicitud | 2 | En testing |
+| HU-12 | Rechazar solicitud | 2 | En testing |
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 
@@ -130,6 +133,10 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/clientes` | Listado de clientes registrados con su plan | HU-31 |
 | `GET /admin/clientes/<id>` | Detalle del cliente (solo lectura) | HU-04 |
 | `POST /admin/clientes/<id>/validar` | Valida la identidad del cliente con VeriCheck | HU-25 |
+| `GET /admin/solicitudes` | Listado de solicitudes de los clientes | HU-14 |
+| `GET /admin/solicitudes/<id>` | Detalle de la solicitud | HU-14 |
+| `POST /admin/solicitudes/<id>/aprobar` | Aprueba una solicitud pendiente (comentario opcional) | HU-11 |
+| `POST /admin/solicitudes/<id>/rechazar` | Rechaza una solicitud pendiente (motivo obligatorio) | HU-12 |
 | `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
 | `GET/POST /cliente/ingresar` | Identificación del cliente mediante DNI y email | HU-03 / HU-05 |
 | `GET /cliente/mi-informacion` | Consulta de datos personales, plan, servicios, solicitudes y reclamos | HU-03 |
@@ -155,6 +162,8 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `DELETE` | `/api/planes/<id>` | 204, 404, 409 (tiene clientes) |
 | `GET` | `/api/clientes` | 200 |
 | `GET` | `/api/clientes/<id>` | 200, 404 |
+| `GET` | `/api/solicitudes` | 200 |
+| `GET` | `/api/solicitudes/<id>` | 200, 404 |
 | `POST` | `/api/validaciones` | 200, 400 |
 
 Ejemplos de cuerpo:

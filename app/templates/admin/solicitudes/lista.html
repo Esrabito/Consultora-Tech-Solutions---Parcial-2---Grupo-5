@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block titulo %}Solicitudes{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><span aria-current="page">Solicitudes</span></li>
+      </ul>
+    </nav>
+    <h1>Solicitudes</h1>
+    <p class="page-head__meta">
+      {% if solicitudes %}
+        {{ solicitudes|length }}
+        {% if solicitudes|length == 1 %}solicitud{% else %}solicitudes{% endif %} de clientes
+      {% else %}
+        Solicitudes realizadas por los clientes
+      {% endif %}
+    </p>
+  </div>
+</header>
+
+{% if solicitudes %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Solicitudes de los clientes y su estado</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="cell-id">N.º</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="cell-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for solicitud in solicitudes %}
+          <tr>
+            <td class="cell-id" data-label="N.º">{{ solicitud.id_solicitud }}</td>
+            <td class="cell-main" data-label="Cliente">{{ solicitud.cliente.nombre }}</td>
+            <td data-label="Tipo">{{ solicitud.tipo_modificacion }}</td>
+            <td data-label="Fecha">
+              {% if solicitud.fecha_creacion %}{{ solicitud.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}{% endif %}
+            </td>
+            <td data-label="Estado"><span class="tag">{{ solicitud.estado }}</span></td>
+            <td class="cell-actions" data-label="Acciones">
+              <div class="row-actions">
+                <a href="{{ url_for('admin.detalle_solicitud', id_solicitud=solicitud.id_solicitud) }}"
+                   class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-eye" aria-hidden="true"></i> Ver detalle
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true">
+      <i class="bi bi-inbox"></i>
+    </span>
+    <h2>Todavía no hay solicitudes</h2>
+    <p>Las solicitudes aparecen acá cuando los clientes piden un cambio de plan o de servicio.</p>
+  </div>
+{% endif %}
+{% endblock %}

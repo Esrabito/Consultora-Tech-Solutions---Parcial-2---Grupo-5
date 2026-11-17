@@ -55,6 +55,11 @@
                    href="{{ url_for('admin.listar_clientes') }}"
                    {% if request.endpoint and request.endpoint.startswith('admin.') and 'cliente' in request.endpoint %}aria-current="page"{% endif %}>Clientes</a>
               </li>
+              <li>
+                <a class="site-nav__link {% if request.endpoint and request.endpoint.startswith('admin.') and 'solicitud' in request.endpoint %}is-active{% endif %}"
+                   href="{{ url_for('admin.listar_solicitudes') }}"
+                   {% if request.endpoint and request.endpoint.startswith('admin.') and 'solicitud' in request.endpoint %}aria-current="page"{% endif %}>Solicitudes</a>
+              </li>
             {% else %}
               <li>
                 <a class="site-nav__link {% if request.endpoint == 'main.inicio' %}is-active{% endif %}"

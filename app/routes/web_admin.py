@@ -226,3 +226,52 @@ def validar_cliente(id_cliente):
     else:
         flash(f"VeriCheck no validó la identidad de {cliente.nombre}: {resultado['motivo']}", "danger")
     return redirect(url_for("admin.detalle_cliente", id_cliente=id_cliente))
+
+
+# ---------------------------------------------------------------------------
+# HU-14 Consultar solicitudes / HU-11 Aprobar / HU-12 Rechazar
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/solicitudes")
+@admin_requerido
+def listar_solicitudes():
+    return render_template(
+        "admin/solicitudes/lista.html", solicitudes=solicitudes_service.listar_todas()
+    )
+
+
+@admin_bp.get("/solicitudes/<int:id_solicitud>")
+@admin_requerido
+def detalle_solicitud(id_solicitud):
+    try:
+        solicitud = solicitudes_service.obtener_solicitud(id_solicitud)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_solicitudes"))
+    return render_template("admin/solicitudes/detalle.html", solicitud=solicitud)
+
+
+@admin_bp.post("/solicitudes/<int:id_solicitud>/aprobar")
+@admin_requerido
+def aprobar_solicitud(id_solicitud):
+    return _resolver_solicitud(id_solicitud, solicitudes_service.aprobar_solicitud, "aprobada")
+
+
+@admin_bp.post("/solicitudes/<int:id_solicitud>/rechazar")
+@admin_requerido
+def rechazar_solicitud(id_solicitud):
+    return _resolver_solicitud(id_solicitud, solicitudes_service.rechazar_solicitud, "rechazada")
+
+
+def _resolver_solicitud(id_solicitud, accion, participio):
+    try:
+        accion(id_solicitud, request.form)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_solicitudes"))
+    except (DatosInvalidos, Conflicto) as error:
+        flash(" ".join(errores_para_formulario(error).values()), "danger")
+    else:
+        flash(f"La solicitud N.º {id_solicitud} fue {participio}.", "success")
+    return redirect(url_for("admin.detalle_solicitud", id_solicitud=id_solicitud))

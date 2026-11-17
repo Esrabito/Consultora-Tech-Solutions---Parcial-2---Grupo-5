@@ -11,6 +11,7 @@ from app.routes.auth import admin_requerido
 from app.services import clientes as clientes_service
 from app.services import planes as planes_service
 from app.services import servicios as servicios_service
+from app.services import solicitudes as solicitudes_service
 from app.services import validacion as validacion_service
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
@@ -116,6 +117,23 @@ def obtener_cliente(id_cliente):
     detalle = cliente.a_dict()
     detalle["plan"] = cliente.plan.a_dict()
     return jsonify(detalle)
+
+
+# ---------------------------------------------------------------------------
+# HU-14 Consultar solicitudes (administrador)
+# ---------------------------------------------------------------------------
+
+
+@api_bp.get("/solicitudes")
+@admin_requerido
+def listar_solicitudes():
+    return jsonify([s.a_dict() for s in solicitudes_service.listar_todas()])
+
+
+@api_bp.get("/solicitudes/<int:id_solicitud>")
+@admin_requerido
+def obtener_solicitud(id_solicitud):
+    return jsonify(solicitudes_service.obtener_solicitud(id_solicitud).a_dict())
 
 
 # ---------------------------------------------------------------------------

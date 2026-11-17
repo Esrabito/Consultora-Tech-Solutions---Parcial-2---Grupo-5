@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block titulo %}Solicitud N.º {{ solicitud.id_solicitud }}{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><a href="{{ url_for('admin.listar_solicitudes') }}">Solicitudes</a></li>
+        <li><span aria-current="page">N.º {{ solicitud.id_solicitud }}</span></li>
+      </ul>
+    </nav>
+    <h1>Solicitud N.º {{ solicitud.id_solicitud }}</h1>
+    <p class="page-head__meta">{{ solicitud.tipo_modificacion }} · {{ solicitud.estado }}</p>
+  </div>
+</header>
+
+<section class="form-layout">
+  <div class="form-sheet">
+    <h2>Detalle</h2>
+    <dl class="ledger">
+      <div class="ledger__row">
+        <dt>Cliente</dt>
+        <dd><a href="{{ url_for('admin.detalle_cliente', id_cliente=solicitud.id_cliente) }}">{{ solicitud.cliente.nombre }}</a></dd>
+      </div>
+      <div class="ledger__row"><dt>Tipo</dt><dd>{{ solicitud.tipo_modificacion }}</dd></div>
+      <div class="ledger__row">
+        <dt>Fecha</dt>
+        <dd>{% if solicitud.fecha_creacion %}{{ solicitud.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}{% endif %}</dd>
+      </div>
+      <div class="ledger__row"><dt>Plan actual</dt><dd>{{ solicitud.plan_actual.nombre_plan }}</dd></div>
+      {% if solicitud.servicio %}
+        <div class="ledger__row"><dt>Servicio</dt><dd>{{ solicitud.servicio.tipo_servicio }}</dd></div>
+      {% else %}
+        <div class="ledger__row"><dt>Plan solicitado</dt><dd>{{ solicitud.plan_solicitado.nombre_plan }}</dd></div>
+      {% endif %}
+      <div class="ledger__row"><dt>Motivo</dt><dd>{{ solicitud.motivo }}</dd></div>
+      <div class="ledger__row"><dt>Estado</dt><dd>{{ solicitud.estado }}</dd></div>
+      {% if solicitud.resultado %}
+        <div class="ledger__row"><dt>Resultado</dt><dd>{{ solicitud.resultado }}</dd></div>
+      {% endif %}
+    </dl>
+  </div>
+
+  <aside class="form-aside" aria-labelledby="resolver-titulo">
+    <h2 id="resolver-titulo">Resolver</h2>
+    {% if solicitud.estado == "Pendiente" %}
+      <form action="{{ url_for('admin.aprobar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="comentario" class="form-label">Comentario (opcional)</label>
+        <textarea id="comentario" name="resultado" class="form-control mb-2" rows="2" maxlength="500"></textarea>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-lg" aria-hidden="true"></i> Aprobar
+        </button>
+      </form>
+
+      <form action="{{ url_for('admin.rechazar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="motivo-rechazo" class="form-label">Motivo del rechazo</label>
+        <textarea id="motivo-rechazo" name="resultado" class="form-control mb-2" rows="2" maxlength="500" required></textarea>
+        <button type="submit" class="btn btn-outline-ink">
+          <i class="bi bi-x-lg" aria-hidden="true"></i> Rechazar
+        </button>
+      </form>
+    {% else %}
+      <p class="text-muted">Esta solicitud ya fue resuelta y no se puede modificar.</p>
+    {% endif %}
+    <p class="text-muted mt-3">
+      <a href="{{ url_for('admin.listar_solicitudes') }}">Volver al listado</a>
+    </p>
+  </aside>
+</section>
+{% endblock %}

@@ -92,6 +92,17 @@ o si queda como suposición a confirmar.
 | Si CRMMax falla | El cliente queda registrado igual y se le avisa. No se deshace un alta por la caída de un sistema externo | SUPOSICIÓN |
 | Registro de la integración | Cada intento queda en el log de la aplicación (log básico, decisión 3). No hay tabla de auditoría: eso es HU-29 | DECISIÓN TÉCNICA |
 
+## Decisiones de HU-14 / HU-11 / HU-12 Gestión de solicitudes (administrador)
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Listado | El administrador ve todas las solicitudes, las más nuevas primero, con cliente, tipo, fecha y estado. Desde cada una abre su detalle | REQUISITO (HU-14) |
+| Aprobar | Pasa la solicitud de "Pendiente" a "Aprobada". El comentario es opcional; si no hay, se guarda "Solicitud aprobada." | REQUISITO (HU-11) / SUPOSICIÓN (comentario opcional) |
+| Rechazar | Pasa la solicitud a "Rechazada" y el motivo es obligatorio (5 a 500 caracteres), porque el cliente lo ve en "Mis solicitudes" | REQUISITO (HU-12) / SUPOSICIÓN (motivo obligatorio) |
+| Se resuelve una sola vez | Una solicitud aprobada o rechazada no se puede volver a resolver: devuelve un aviso y no cambia nada | DECISIÓN TÉCNICA |
+| Aprobar no modifica el plan | Aprobar solo cambia el estado. Actualizar el plan o los servicios del cliente es de HU-16 y HU-17, que quedan para otro sprint | REQUISITO (Trello) |
+| Prioridades (HU-13) | No se hicieron: requieren una columna nueva en la tabla y la base ya creada no se actualiza sola | DECISIÓN TÉCNICA |
+
 ## Planificación
 
 | Tema | Decisión |
