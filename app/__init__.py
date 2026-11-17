@@ -27,32 +27,42 @@ def create_app(config_class=Config):
         from app import models  # noqa: F401  (registra los modelos antes de crear las tablas)
 
         db.create_all()
-        _actualizar_columnas_solicitudes()
+        _actualizar_columnas()
 
     return app
 
 
-def _actualizar_columnas_solicitudes():
-    """Actualiza la tabla existente de solicitudes para las HUs de solicitudes."""
-    columnas = {columna["name"] for columna in inspect(db.engine).get_columns("solicitudes")}
-    faltantes = {
+# db.create_all() crea las tablas que faltan pero no agrega columnas a las que ya existen.
+# Para no obligar a todos a borrar su base local, estas columnas se agregan acá si faltan.
+COLUMNAS_NUEVAS = {
+    "solicitudes": {
         "id_servicio": "INTEGER",
         "fecha_creacion": "DATETIME",
         "resultado": "VARCHAR(500)",
-    }
+        "prioridad": "VARCHAR(10) NOT NULL DEFAULT 'Media'",
+        "fecha_resolucion": "DATETIME",
+    },
+    "clientes": {"fecha_registro": "DATETIME"},
+}
+
+# Columnas de fecha que, al agregarse, se completan con la fecha actual en las filas viejas.
+FECHAS_A_COMPLETAR = {("solicitudes", "fecha_creacion"), ("clientes", "fecha_registro")}
+
+
+def _actualizar_columnas():
+    """Agrega a las tablas ya creadas las columnas que se sumaron después."""
+    inspector = inspect(db.engine)
     with db.engine.begin() as conexion:
-        for nombre, tipo in faltantes.items():
-            if nombre not in columnas:
-                conexion.execute(
-                    text(f"ALTER TABLE solicitudes ADD COLUMN {nombre} {tipo}")
-                )
-        if "fecha_creacion" not in columnas:
-            conexion.execute(
-                text(
-                    "UPDATE solicitudes SET fecha_creacion = CURRENT_TIMESTAMP "
-                    "WHERE fecha_creacion IS NULL"
-                )
-            )
+        for tabla, columnas_nuevas in COLUMNAS_NUEVAS.items():
+            existentes = {columna["name"] for columna in inspector.get_columns(tabla)}
+            for nombre, tipo in columnas_nuevas.items():
+                if nombre in existentes:
+                    continue
+                conexion.execute(text(f"ALTER TABLE {tabla} ADD COLUMN {nombre} {tipo}"))
+                if (tabla, nombre) in FECHAS_A_COMPLETAR:
+                    conexion.execute(
+                        text(f"UPDATE {tabla} SET {nombre} = CURRENT_TIMESTAMP WHERE {nombre} IS NULL")
+                    )
 
 
 def _validar_configuracion(app):

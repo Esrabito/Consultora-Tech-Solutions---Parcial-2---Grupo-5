@@ -17,6 +17,10 @@ class Solicitud(db.Model):
     motivo = db.Column(db.String(500), nullable=False)
     tipo_modificacion = db.Column(db.String(50), nullable=False)
     resultado = db.Column(db.String(500), nullable=True)
+    # HU-13: la define el administrador; si no la cambia, queda en "Media".
+    prioridad = db.Column(db.String(10), nullable=False, default="Media")
+    # Se completa al aprobar o rechazar; sirve para el tiempo de respuesta (HU-27).
+    fecha_resolucion = db.Column(db.DateTime, nullable=True)
 
     id_cliente = db.Column(
         db.Integer,
@@ -52,6 +56,7 @@ class Solicitud(db.Model):
             "estado": self.estado,
             "motivo": self.motivo,
             "resultado": self.resultado,
+            "prioridad": self.prioridad,
             "fecha_creacion": self.fecha_creacion.isoformat() if self.fecha_creacion else None,
             "plan_actual": self.plan_actual.nombre_plan,
             "plan_solicitado": self.plan_solicitado.nombre_plan,

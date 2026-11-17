@@ -1,7 +1,12 @@
-"""Reglas de negocio para solicitudes de cambio de plan (HU-08)."""
+"""Reglas de negocio de las solicitudes (HU-08, HU-09, HU-10, HU-11 a HU-14 y HU-16)."""
+
+from datetime import datetime, timezone
 
 from app.extensions import db
 from app.models import Plan, Servicio, Solicitud
+from app.services import adjuntos as adjuntos_service
+from app.services import facturas as facturas_service
+from app.services import notificaciones
 from app.services.comun import guardar_cambios, texto_obligatorio
 from app.services.errores import Conflicto, DatosInvalidos, NoEncontrado
 
@@ -10,6 +15,8 @@ TIPO_CAMBIO_PLAN = "Cambio de plan"
 ESTADO_PENDIENTE = "Pendiente"
 ESTADO_APROBADA = "Aprobada"
 ESTADO_RECHAZADA = "Rechazada"
+
+PRIORIDADES = ("Alta", "Media", "Baja")
 
 
 def listar_por_cliente(id_cliente):
@@ -28,7 +35,7 @@ def cantidad_pendientes():
     return db.session.scalar(consulta) or 0
 
 
-def crear_cambio_plan(cliente, datos):
+def crear_cambio_plan(cliente, datos, archivo=None):
     if cliente.plan is None:
         raise DatosInvalidos(
             {"general": "No tenés un plan contratado para solicitar un cambio."}
@@ -36,10 +43,11 @@ def crear_cambio_plan(cliente, datos):
 
     id_plan_solicitado = _validar_plan_solicitado(datos, cliente.id_plan)
     motivo = texto_obligatorio(datos, "motivo", "El motivo", 5, 500)
+    adjunto = adjuntos_service.guardar(archivo)
 
     solicitud = Solicitud(
         estado="Pendiente",
-        adjunto=None,
+        adjunto=adjunto,
         motivo=motivo,
         tipo_modificacion=TIPO_CAMBIO_PLAN,
         id_cliente=cliente.id_cliente,
@@ -48,10 +56,11 @@ def crear_cambio_plan(cliente, datos):
     )
     db.session.add(solicitud)
     guardar_cambios()
+    notificaciones.notificar_nueva_solicitud(solicitud)
     return solicitud
 
 
-def crear_modificacion_servicio(cliente, datos):
+def crear_modificacion_servicio(cliente, datos, archivo=None):
     if cliente.plan is None or not cliente.plan.servicios:
         raise DatosInvalidos(
             {"general": "No tenés servicios contratados para solicitar una modificación."}
@@ -62,10 +71,11 @@ def crear_modificacion_servicio(cliente, datos):
         datos, "tipo_modificacion", "El tipo de modificación", 3, 50
     )
     motivo = texto_obligatorio(datos, "motivo", "El motivo o detalle", 5, 500)
+    adjunto = adjuntos_service.guardar(archivo)
 
     solicitud = Solicitud(
         estado="Pendiente",
-        adjunto=None,
+        adjunto=adjunto,
         motivo=motivo,
         tipo_modificacion=tipo_modificacion,
         id_cliente=cliente.id_cliente,
@@ -75,6 +85,7 @@ def crear_modificacion_servicio(cliente, datos):
     )
     db.session.add(solicitud)
     guardar_cambios()
+    notificaciones.notificar_nueva_solicitud(solicitud)
     return solicitud
 
 
@@ -141,15 +152,36 @@ def rechazar_solicitud(id_solicitud, datos):
     return _resolver(solicitud, ESTADO_RECHAZADA, motivo)
 
 
+def asignar_prioridad(id_solicitud, datos):
+    """Define la prioridad de una solicitud pendiente (HU-13)."""
+    solicitud = obtener_solicitud(id_solicitud)
+    prioridad = datos.get("prioridad")
+    if prioridad not in PRIORIDADES:
+        raise DatosInvalidos(
+            {"prioridad": "La prioridad debe ser " + ", ".join(PRIORIDADES) + "."}
+        )
+    if solicitud.estado != ESTADO_PENDIENTE:
+        raise Conflicto("Solo se puede cambiar la prioridad de una solicitud pendiente.")
+    solicitud.prioridad = prioridad
+    guardar_cambios()
+    return solicitud
+
+
 def _resolver(solicitud, estado, resultado):
     # Una solicitud se resuelve una sola vez: así no se pisa una decisión ya tomada.
     if solicitud.estado != ESTADO_PENDIENTE:
         raise Conflicto(f"La solicitud ya fue resuelta (estado: {solicitud.estado}).")
+
+    # HU-15 y HU-16: al aprobar un cambio de plan se pide la factura a PagoNet y, con la
+    # factura emitida, el cliente pasa al plan pedido. Si PagoNet falla, no cambia nada.
+    # Las solicitudes de servicio llevan id_servicio y no generan factura ni cambian el plan.
+    if estado == ESTADO_APROBADA and solicitud.id_servicio is None:
+        facturas_service.emitir_por_cambio_de_plan(solicitud)
+        solicitud.cliente.id_plan = solicitud.id_plan_solicitado
+
     solicitud.estado = estado
     solicitud.resultado = resultado
-    # HU-16: al aprobar un cambio de plan, el cliente pasa a tener el plan pedido.
-    # Las solicitudes de servicio llevan id_servicio y no cambian el plan.
-    if estado == ESTADO_APROBADA and solicitud.id_servicio is None:
-        solicitud.cliente.id_plan = solicitud.id_plan_solicitado
+    solicitud.fecha_resolucion = datetime.now(timezone.utc)
     guardar_cambios()
+    notificaciones.notificar_resolucion(solicitud)
     return solicitud

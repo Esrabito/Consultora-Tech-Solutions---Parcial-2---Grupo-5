@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block titulo %}Reportes{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><span aria-current="page">Reportes</span></li>
+      </ul>
+    </nav>
+    <h1>Reportes operativos</h1>
+    <p class="page-head__meta">Métricas del día {{ metricas.fecha }}</p>
+  </div>
+  <div class="page-head__actions">
+    <form action="{{ url_for('admin.enviar_metricas') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-send" aria-hidden="true"></i> Enviar a AnalytixPro
+      </button>
+    </form>
+  </div>
+</header>
+
+<section class="form-layout">
+  <div class="form-sheet">
+    <h2>Clientes</h2>
+    <dl class="ledger">
+      <div class="ledger__row"><dt>Clientes registrados</dt><dd>{{ metricas.total_clientes }}</dd></div>
+      <div class="ledger__row"><dt>Nuevos registros del día</dt><dd>{{ metricas.nuevos_registros }}</dd></div>
+    </dl>
+
+    <h2 class="mt-4">Solicitudes</h2>
+    <dl class="ledger">
+      <div class="ledger__row"><dt>Generadas hoy</dt><dd>{{ metricas.solicitudes_generadas }}</dd></div>
+      <div class="ledger__row"><dt>Pendientes</dt><dd>{{ metricas.solicitudes_pendientes }}</dd></div>
+      <div class="ledger__row"><dt>Cambios de plan aprobados</dt><dd>{{ metricas.cambios_de_plan }}</dd></div>
+      <div class="ledger__row">
+        <dt>Tiempo promedio de respuesta</dt>
+        <dd>
+          {% if metricas.tiempo_promedio_respuesta_horas is none %}Sin solicitudes resueltas{% else %}{{ metricas.tiempo_promedio_respuesta_horas }} h{% endif %}
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="mt-4">Reclamos y facturación</h2>
+    <dl class="ledger">
+      <div class="ledger__row"><dt>Reclamos abiertos</dt><dd>{{ metricas.reclamos_abiertos }}</dd></div>
+      <div class="ledger__row"><dt>Facturas emitidas</dt><dd>{{ metricas.facturas_emitidas }}</dd></div>
+      <div class="ledger__row"><dt>Importe facturado</dt><dd>{{ metricas.importe_facturado|moneda }}</dd></div>
+    </dl>
+  </div>
+
+  <aside class="form-aside" aria-labelledby="reportes-titulo">
+    <h2 id="reportes-titulo">Sobre estas métricas</h2>
+    <p class="text-muted">
+      Se calculan con los datos del sistema. "Enviar a AnalytixPro" las manda para sus dashboards
+      y deja el registro en la auditoría.
+    </p>
+    <p class="text-muted"><a href="{{ url_for('admin.listar_auditoria', sistema='AnalytixPro') }}">Ver envíos anteriores</a></p>
+  </aside>
+</section>
+{% endblock %}

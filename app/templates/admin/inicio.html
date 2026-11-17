@@ -93,5 +93,56 @@
       </a>
     </div>
   </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-receipt" aria-hidden="true"></i>
+        Facturas
+      </h2>
+    </div>
+    <p class="module__desc">
+      Las facturas que genera PagoNet cuando se aprueba un cambio de plan.
+    </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.listar_facturas') }}" class="btn btn-outline-ink">
+        Ver facturas
+      </a>
+    </div>
+  </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-graph-up" aria-hidden="true"></i>
+        Reportes
+      </h2>
+    </div>
+    <p class="module__desc">
+      Las métricas operativas del día y su envío a AnalytixPro.
+    </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.panel_reportes') }}" class="btn btn-outline-ink">
+        Ver reportes
+      </a>
+    </div>
+  </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
+        <i class="bi bi-journal-text" aria-hidden="true"></i>
+        Auditoría
+      </h2>
+    </div>
+    <p class="module__desc">
+      El registro de cada comunicación con VeriCheck, CRMMax, PagoNet, NotiSys y AnalytixPro.
+    </p>
+    <div class="module__action">
+      <a href="{{ url_for('admin.listar_auditoria') }}" class="btn btn-outline-ink">
+        Ver auditoría
+      </a>
+    </div>
+  </article>
 </section>
 {% endblock %}

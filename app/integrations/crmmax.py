@@ -23,3 +23,15 @@ def registrar_cliente(datos):
     if datos["email"].lower().endswith(DOMINIO_CAIDO):
         return {"ok": False, "motivo": MOTIVO_NO_DISPONIBLE}
     return {"ok": True, "motivo": None}
+
+
+def consultar_cliente(datos):
+    """Simula la consulta de un cliente en CRMMax (HU-26).
+
+    Recibe los mismos datos que registrar_cliente() y devuelve
+    {"ok": bool, "motivo": str | None, "cliente": dict | None}. Como CRMMax no existe,
+    "recuerda" lo que se le envió al registrar: devuelve esos mismos datos.
+    """
+    if datos["email"].lower().endswith(DOMINIO_CAIDO):
+        return {"ok": False, "motivo": MOTIVO_NO_DISPONIBLE, "cliente": None}
+    return {"ok": True, "motivo": None, "cliente": {**datos, "estado": "Activo en CRMMax"}}

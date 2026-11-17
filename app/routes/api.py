@@ -8,8 +8,12 @@ desde otro sitio sin permiso explícito (CORS), así que el riesgo queda cubiert
 from flask import Blueprint, abort, jsonify, request, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import auditoria as auditoria_service
 from app.services import clientes as clientes_service
+from app.services import crm as crm_service
+from app.services import facturas as facturas_service
 from app.services import planes as planes_service
+from app.services import reportes as reportes_service
 from app.services import servicios as servicios_service
 from app.services import solicitudes as solicitudes_service
 from app.services import validacion as validacion_service
@@ -119,6 +123,17 @@ def obtener_cliente(id_cliente):
     return jsonify(detalle)
 
 
+@api_bp.get("/clientes/<int:id_cliente>/crmmax")
+@admin_requerido
+def consultar_cliente_en_crmmax(id_cliente):
+    """HU-26: consulta al cliente en CRMMax. Si CRMMax no responde, devuelve 502."""
+    cliente = clientes_service.obtener_cliente(id_cliente)
+    respuesta = crm_service.consultar_cliente(cliente)
+    if not respuesta["ok"]:
+        return jsonify(error=respuesta["motivo"]), 502
+    return jsonify(respuesta["cliente"])
+
+
 # ---------------------------------------------------------------------------
 # HU-14 Consultar solicitudes (administrador)
 # ---------------------------------------------------------------------------
@@ -134,6 +149,52 @@ def listar_solicitudes():
 @admin_requerido
 def obtener_solicitud(id_solicitud):
     return jsonify(solicitudes_service.obtener_solicitud(id_solicitud).a_dict())
+
+
+@api_bp.put("/solicitudes/<int:id_solicitud>/prioridad")
+@admin_requerido
+def asignar_prioridad(id_solicitud):
+    """HU-13: define la prioridad de una solicitud pendiente."""
+    solicitud = solicitudes_service.asignar_prioridad(id_solicitud, _leer_json())
+    return jsonify(solicitud.a_dict())
+
+
+# ---------------------------------------------------------------------------
+# HU-32 Facturas, HU-29 Auditoría, HU-27 / HU-28 Métricas
+# ---------------------------------------------------------------------------
+
+
+@api_bp.get("/facturas")
+@admin_requerido
+def listar_facturas():
+    return jsonify([f.a_dict() for f in facturas_service.listar_facturas()])
+
+
+@api_bp.get("/facturas/<int:id_factura>")
+@admin_requerido
+def obtener_factura(id_factura):
+    return jsonify(facturas_service.obtener_factura(id_factura).a_dict())
+
+
+@api_bp.get("/auditoria")
+@admin_requerido
+def listar_auditoria():
+    sistema = request.args.get("sistema", "").strip() or None
+    return jsonify([r.a_dict() for r in auditoria_service.listar(sistema)])
+
+
+@api_bp.get("/reportes/metricas")
+@admin_requerido
+def obtener_metricas():
+    return jsonify(reportes_service.metricas_del_dia())
+
+
+@api_bp.post("/reportes/metricas")
+@admin_requerido
+def enviar_metricas():
+    """HU-27: calcula las métricas del día y las envía a AnalytixPro."""
+    metricas, respuesta = reportes_service.generar_metricas_diarias()
+    return jsonify(metricas=metricas, analytixpro=respuesta)
 
 
 # ---------------------------------------------------------------------------

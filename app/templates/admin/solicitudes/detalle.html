@@ -38,6 +38,13 @@
       {% endif %}
       <div class="ledger__row"><dt>Motivo</dt><dd>{{ solicitud.motivo }}</dd></div>
       <div class="ledger__row"><dt>Estado</dt><dd>{{ solicitud.estado }}</dd></div>
+      <div class="ledger__row"><dt>Prioridad</dt><dd>{{ solicitud.prioridad }}</dd></div>
+      {% if solicitud.adjunto %}
+        <div class="ledger__row">
+          <dt>Adjunto</dt>
+          <dd><a href="{{ url_for('admin.descargar_adjunto', id_solicitud=solicitud.id_solicitud) }}">Descargar archivo</a></dd>
+        </div>
+      {% endif %}
       {% if solicitud.resultado %}
         <div class="ledger__row"><dt>Resultado</dt><dd>{{ solicitud.resultado }}</dd></div>
       {% endif %}
@@ -47,10 +54,23 @@
   <aside class="form-aside" aria-labelledby="resolver-titulo">
     <h2 id="resolver-titulo">Resolver</h2>
     {% if solicitud.estado == "Pendiente" %}
+      <form action="{{ url_for('admin.asignar_prioridad', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="prioridad" class="form-label">Prioridad</label>
+        <div class="d-flex gap-2">
+          <select id="prioridad" name="prioridad" class="form-select">
+            {% for opcion in ("Alta", "Media", "Baja") %}
+              <option value="{{ opcion }}" {% if opcion == solicitud.prioridad %}selected{% endif %}>{{ opcion }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-outline-ink">Guardar</button>
+        </div>
+      </form>
+
       <form action="{{ url_for('admin.aprobar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {% if not solicitud.servicio %}
-          <p class="text-muted">Al aprobar, {{ solicitud.cliente.nombre }} pasa al plan {{ solicitud.plan_solicitado.nombre_plan }}.</p>
+          <p class="text-muted">Al aprobar se genera la factura en PagoNet y {{ solicitud.cliente.nombre }} pasa al plan {{ solicitud.plan_solicitado.nombre_plan }}.</p>
         {% endif %}
         <label for="comentario" class="form-label">Comentario (opcional)</label>
         <textarea id="comentario" name="resultado" class="form-control mb-2" rows="2" maxlength="500"></textarea>

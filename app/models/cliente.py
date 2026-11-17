@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from app.extensions import db
 
 
@@ -12,6 +14,10 @@ class Cliente(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
     telefono = db.Column(db.String(30), nullable=False)
+    # Para contar los registros nuevos del día en las métricas (HU-27).
+    fecha_registro = db.Column(
+        db.DateTime, nullable=True, default=lambda: datetime.now(timezone.utc)
+    )
 
     # Un cliente siempre debe tener un plan contratado
     id_plan = db.Column(

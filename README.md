@@ -73,7 +73,7 @@ app/
   extensions.py     base de datos y protección CSRF
   models/           entidades del DER
   services/         reglas de negocio
-    integrations/     simulación de los sistemas externos (VeriCheck)
+  integrations/     simulación de los sistemas externos (VeriCheck, CRMMax, PagoNet, NotiSys, AnalytixPro)
   routes/           pantallas HTML y API REST
   templates/        vistas (Jinja + Bootstrap)
   static/           estilos
@@ -92,7 +92,7 @@ run.py              punto de entrada
 | `DATABASE_URL` | No | Conexión a la base (por defecto SQLite en `instance/`) |
 | `FLASK_DEBUG` | No | `1` para modo desarrollo |
 
-## Historias de usuario implementadas (Sprint 1)
+## Historias de usuario implementadas
 
 | HU | Nombre | SP | Estado |
 |---|---|---|---|
@@ -112,6 +112,31 @@ run.py              punto de entrada
 | HU-11 | Aprobar solicitud | 2 | En testing |
 | HU-12 | Rechazar solicitud | 2 | En testing |
 | HU-16 | Actualizar plan del cliente (al aprobar un cambio de plan) | — | En testing |
+| HU-15 | Generar factura por cambio de plan (PagoNet simulado) | — | En testing |
+| HU-32 | Consultar facturas emitidas | — | En testing |
+| HU-13 | Gestionar prioridades de solicitudes | — | En testing |
+| HU-10 | Adjuntar documentación a una solicitud | — | En testing |
+| HU-21 | Notificar cambios de estado (NotiSys simulado) | — | En testing |
+| HU-26 | Consultar cliente en CRMMax (simulado) | — | En testing |
+| HU-27 | Generar métricas diarias (AnalytixPro simulado) | — | En testing |
+| HU-28 | Consultar reportes operativos | — | En testing |
+| HU-29 | Registrar auditoría de integraciones | — | En testing |
+
+Las HU de reclamos (HU-18, HU-33, HU-37, HU-20) y las de WhatsApp quedan en manos de quien las tiene asignada en el tablero. HU-17 (actualizar servicios) no se implementa: ver [docs/decisiones.md](docs/decisiones.md).
+
+### Sistemas externos simulados
+
+Ninguno de estos sistemas existe, así que cada uno se simula en `app/integrations/`. Para mostrar el caso de error se usan emails de un dominio "caído":
+
+| Sistema | Qué hace en el sistema | Email que simula la caída |
+|---|---|---|
+| VeriCheck | Valida DNI y nombre (el DNI con todos los dígitos iguales no se valida) | — |
+| CRMMax | Recibe y consulta clientes | `@crmmax-caido.test` |
+| PagoNet | Genera la factura al aprobar un cambio de plan | `@pagonet-caido.test` |
+| NotiSys | Avisa al cliente y a los administradores | `@notisys-caido.test` |
+| AnalytixPro | Recibe las métricas diarias | — |
+
+Cada comunicación queda en **Auditoría** (panel de administración).
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 

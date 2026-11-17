@@ -33,6 +33,7 @@
           <th scope="col">Cliente</th>
           <th scope="col">Tipo</th>
           <th scope="col">Fecha</th>
+          <th scope="col">Prioridad</th>
           <th scope="col">Estado</th>
           <th scope="col" class="cell-actions">Acciones</th>
         </tr>
@@ -46,6 +47,7 @@
             <td data-label="Fecha">
               {% if solicitud.fecha_creacion %}{{ solicitud.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}{% endif %}
             </td>
+            <td data-label="Prioridad">{{ solicitud.prioridad }}</td>
             <td data-label="Estado"><span class="tag">{{ solicitud.estado }}</span></td>
             <td class="cell-actions" data-label="Acciones">
               <div class="row-actions">

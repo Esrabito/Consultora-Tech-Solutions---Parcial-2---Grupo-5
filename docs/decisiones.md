@@ -100,9 +100,23 @@ o si queda como suposición a confirmar.
 | Aprobar | Pasa la solicitud de "Pendiente" a "Aprobada". El comentario es opcional; si no hay, se guarda "Solicitud aprobada." | REQUISITO (HU-11) / SUPOSICIÓN (comentario opcional) |
 | Rechazar | Pasa la solicitud a "Rechazada" y el motivo es obligatorio (5 a 500 caracteres), porque el cliente lo ve en "Mis solicitudes" | REQUISITO (HU-12) / SUPOSICIÓN (motivo obligatorio) |
 | Se resuelve una sola vez | Una solicitud aprobada o rechazada no se puede volver a resolver: devuelve un aviso y no cambia nada | DECISIÓN TÉCNICA |
-| Actualizar el plan (HU-16) | Al aprobar una solicitud de cambio de plan, el cliente pasa al plan solicitado. La HU dice "luego de una factura aprobada", pero PagoNet y las facturas (HU-15) no están hechas, así que el cambio se aplica al aprobar | REQUISITO (HU-16) / SUPOSICIÓN (se aplica sin factura) |
+| Actualizar el plan (HU-16) | Al aprobar una solicitud de cambio de plan, primero se pide la factura a PagoNet y, con la factura emitida, el cliente pasa al plan solicitado ("luego de una factura aprobada"). Si PagoNet falla, la solicitud sigue pendiente y no cambia nada | REQUISITO (HU-16) |
 | Actualizar servicios (HU-17) | No se implementa: en nuestro modelo un cliente no tiene servicios propios, los servicios son los del plan. Aprobar una solicitud de servicio solo cambia su estado | SUPOSICIÓN |
-| Prioridades (HU-13) | No se hicieron: requieren una columna nueva en la tabla y la base ya creada no se actualiza sola | DECISIÓN TÉCNICA |
+| Prioridades (HU-13) | El administrador asigna Alta, Media o Baja a una solicitud pendiente; por defecto es Media. Es una columna nueva: `create_all` no la agrega a una base ya creada, por eso `app/__init__.py` agrega las columnas que falten al arrancar | REQUISITO (HU-13) / DECISIÓN TÉCNICA (columna agregada al arrancar) |
+| Adjuntos (HU-10) | El cliente puede adjuntar un PDF, PNG o JPG de hasta 2 MB al pedir un cambio. Se controla la extensión y que el contenido sea de ese tipo; se guarda en `instance/adjuntos/` con un nombre generado, no el del cliente. Es opcional | REQUISITO (HU-10) / SUPOSICIÓN (tipos y tamaño) |
+
+## Decisiones de HU-15 / HU-32 / HU-21 / HU-26 / HU-27 / HU-28 / HU-29
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Sistemas externos | PagoNet, NotiSys y AnalytixPro tampoco existen: se simulan en `app/integrations/`, igual que VeriCheck y CRMMax. Cada uno falla con un email de un dominio "caído" (`@pagonet-caido.test`, `@notisys-caido.test`) para poder mostrar el error | REQUISITO (indicación del profesor) |
+| Factura (HU-15) | Se genera al aprobar un cambio de plan, con el importe del plan nuevo. PagoNet devuelve el número. Las solicitudes de servicio no generan factura | REQUISITO (HU-15) / SUPOSICIÓN (importe = valor del plan nuevo) |
+| Facturas (HU-32) | Las consulta el administrador, no el cliente | SUPOSICIÓN |
+| Notificaciones (HU-21) | Se avisa a los administradores cuando llega una solicitud y al cliente cuando se la aprueba o rechaza. Si NotiSys falla, la operación sigue y el error queda en la auditoría | REQUISITO (HU-08, HU-09) / SUPOSICIÓN (no frenar la operación) |
+| Consultar en CRMMax (HU-26) | El administrador consulta al cliente desde su detalle o por la API. Como CRMMax es simulado, devuelve los datos con los que se registró al cliente | SUPOSICIÓN |
+| Auditoría (HU-29) | Tabla `auditoria_integraciones` con sistema, operación, resultado (OK o ERROR) y detalle. Reemplaza al log básico de la decisión 3, que se mantiene. El DNI se guarda enmascarado | REQUISITO (HU-29) / DECISIÓN TÉCNICA |
+| Métricas (HU-27, HU-28) | Clientes, registros nuevos del día, solicitudes del día y pendientes, cambios de plan, tiempo promedio de respuesta, reclamos abiertos y facturación. El día se toma en UTC. "Reclamo abierto" es el que está en estado Pendiente | REQUISITO (acontecimiento 6) / SUPOSICIÓN (definición de reclamo abierto) |
+| Columnas nuevas | `prioridad` y `fecha_resolucion` en solicitudes y `fecha_registro` en clientes, para las prioridades y las métricas. Se agregan solas al arrancar si la base ya existía | DECISIÓN TÉCNICA |
 
 ## Planificación
 

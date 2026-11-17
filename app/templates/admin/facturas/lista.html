@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titulo %}Facturas{% endblock %}
+
+{% block contenido %}
+<header class="page-head">
+  <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('admin.inicio') }}">Panel</a></li>
+        <li><span aria-current="page">Facturas</span></li>
+      </ul>
+    </nav>
+    <h1>Facturas</h1>
+    <p class="page-head__meta">
+      {% if facturas %}
+        {{ facturas|length }} {% if facturas|length == 1 %}factura emitida{% else %}facturas emitidas{% endif %} por cambios de plan
+      {% else %}
+        Facturas que genera PagoNet al aprobar un cambio de plan
+      {% endif %}
+    </p>
+  </div>
+</header>
+
+{% if facturas %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Facturas emitidas por cambios de plan</caption>
+      <thead>
+        <tr>
+          <th scope="col">Número</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Plan</th>
+          <th scope="col">Importe</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Solicitud</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for factura in facturas %}
+          <tr>
+            <td class="cell-main" data-label="Número">{{ factura.numero }}</td>
+            <td data-label="Cliente">
+              <a href="{{ url_for('admin.detalle_cliente', id_cliente=factura.id_cliente) }}">{{ factura.cliente.nombre }}</a>
+            </td>
+            <td data-label="Plan">{{ factura.plan.nombre_plan }}</td>
+            <td data-label="Importe">{{ factura.importe|moneda }}</td>
+            <td data-label="Fecha">{{ factura.fecha_emision.strftime("%d/%m/%Y %H:%M") }}</td>
+            <td data-label="Solicitud">
+              {% if factura.id_solicitud %}
+                <a href="{{ url_for('admin.detalle_solicitud', id_solicitud=factura.id_solicitud) }}">N.º {{ factura.id_solicitud }}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true"><i class="bi bi-receipt"></i></span>
+    <h2>Todavía no hay facturas</h2>
+    <p>Se generan cuando el administrador aprueba una solicitud de cambio de plan.</p>
+  </div>
+{% endif %}
+{% endblock %}

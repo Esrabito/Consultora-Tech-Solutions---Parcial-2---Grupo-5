@@ -30,7 +30,7 @@
       </div>
     {% endif %}
 
-    <form method="post" novalidate>
+    <form method="post" enctype="multipart/form-data" novalidate>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="mb-4">
@@ -129,6 +129,17 @@
         {% endif %}
       </div>
 
+      <div id="campo-adjunto" class="mb-4" {% if not tipo_solicitud %}hidden{% endif %}>
+        <label for="adjunto" class="form-label">Adjuntar documentación (opcional)</label>
+        <input type="file" id="adjunto" name="adjunto" accept=".pdf,.png,.jpg,.jpeg"
+               class="form-control {% if errores.adjunto %}is-invalid{% endif %}">
+        {% if errores.adjunto %}
+          <div class="invalid-feedback">{{ errores.adjunto }}</div>
+        {% else %}
+          <div class="form-text">PDF, PNG o JPG de hasta 2 MB.</div>
+        {% endif %}
+      </div>
+
       <div id="acciones-formulario" class="form-actions" {% if not tipo_solicitud %}hidden{% endif %}>
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-send" aria-hidden="true"></i>
@@ -149,6 +160,7 @@
   const plan = document.getElementById("form-plan");
   const servicio = document.getElementById("form-servicio");
   const motivo = document.getElementById("campo-motivo");
+  const adjunto = document.getElementById("campo-adjunto");
   const acciones = document.getElementById("acciones-formulario");
 
   function actualizarFormulario() {
@@ -156,6 +168,7 @@
     plan.hidden = tipo !== "plan";
     servicio.hidden = tipo !== "servicio";
     motivo.hidden = !tipo;
+    adjunto.hidden = !tipo;
     acciones.hidden = !tipo;
   }
 

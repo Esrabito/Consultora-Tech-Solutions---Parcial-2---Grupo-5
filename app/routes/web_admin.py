@@ -1,8 +1,13 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, send_from_directory, url_for
 
 from app.routes.auth import admin_requerido
+from app.services import adjuntos as adjuntos_service
+from app.services import auditoria as auditoria_service
 from app.services import clientes as clientes_service
+from app.services import crm as crm_service
+from app.services import facturas as facturas_service
 from app.services import planes as planes_service
+from app.services import reportes as reportes_service
 from app.services import servicios as servicios_service
 from app.services import solicitudes as solicitudes_service
 from app.services import validacion as validacion_service
@@ -228,6 +233,24 @@ def validar_cliente(id_cliente):
     return redirect(url_for("admin.detalle_cliente", id_cliente=id_cliente))
 
 
+@admin_bp.post("/clientes/<int:id_cliente>/crmmax")
+@admin_requerido
+def consultar_cliente_en_crmmax(id_cliente):
+    """HU-26: el administrador consulta al cliente en CRMMax."""
+    try:
+        cliente = clientes_service.obtener_cliente(id_cliente)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_clientes"))
+
+    respuesta = crm_service.consultar_cliente(cliente)
+    if respuesta["ok"]:
+        flash(f"CRMMax tiene a {cliente.nombre}: {respuesta['cliente']['estado']}.", "success")
+    else:
+        flash(respuesta["motivo"], "danger")
+    return redirect(url_for("admin.detalle_cliente", id_cliente=id_cliente))
+
+
 # ---------------------------------------------------------------------------
 # HU-14 Consultar solicitudes / HU-11 Aprobar / HU-12 Rechazar
 # ---------------------------------------------------------------------------
@@ -264,6 +287,35 @@ def rechazar_solicitud(id_solicitud):
     return _resolver_solicitud(id_solicitud, solicitudes_service.rechazar_solicitud, "rechazada")
 
 
+@admin_bp.post("/solicitudes/<int:id_solicitud>/prioridad")
+@admin_requerido
+def asignar_prioridad(id_solicitud):
+    """HU-13: el administrador define la prioridad de una solicitud pendiente."""
+    try:
+        solicitud = solicitudes_service.asignar_prioridad(id_solicitud, request.form)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_solicitudes"))
+    except (DatosInvalidos, Conflicto) as error:
+        flash(" ".join(errores_para_formulario(error).values()), "danger")
+    else:
+        flash(f"La prioridad de la solicitud N.º {id_solicitud} es {solicitud.prioridad}.", "success")
+    return redirect(url_for("admin.detalle_solicitud", id_solicitud=id_solicitud))
+
+
+@admin_bp.get("/solicitudes/<int:id_solicitud>/adjunto")
+@admin_requerido
+def descargar_adjunto(id_solicitud):
+    """HU-10: el administrador descarga el archivo que adjuntó el cliente."""
+    try:
+        solicitud = solicitudes_service.obtener_solicitud(id_solicitud)
+        nombre = adjuntos_service.nombre_de_adjunto(solicitud)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_solicitudes"))
+    return send_from_directory(adjuntos_service.carpeta_de_adjuntos(), nombre, as_attachment=True)
+
+
 def _resolver_solicitud(id_solicitud, accion, participio):
     try:
         accion(id_solicitud, request.form)
@@ -275,3 +327,50 @@ def _resolver_solicitud(id_solicitud, accion, participio):
     else:
         flash(f"La solicitud N.º {id_solicitud} fue {participio}.", "success")
     return redirect(url_for("admin.detalle_solicitud", id_solicitud=id_solicitud))
+
+
+# ---------------------------------------------------------------------------
+# HU-32 Consultar facturas emitidas
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/facturas")
+@admin_requerido
+def listar_facturas():
+    return render_template("admin/facturas/lista.html", facturas=facturas_service.listar_facturas())
+
+
+# ---------------------------------------------------------------------------
+# HU-29 Auditoría de integraciones
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/auditoria")
+@admin_requerido
+def listar_auditoria():
+    sistema = request.args.get("sistema", "").strip()
+    return render_template(
+        "admin/auditoria/lista.html",
+        registros=auditoria_service.listar(sistema or None),
+        sistemas=auditoria_service.sistemas_registrados(),
+        sistema=sistema,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HU-28 Consultar reportes operativos / HU-27 Generar métricas diarias
+# ---------------------------------------------------------------------------
+
+
+@admin_bp.get("/reportes")
+@admin_requerido
+def panel_reportes():
+    return render_template("admin/reportes/panel.html", metricas=reportes_service.metricas_del_dia())
+
+
+@admin_bp.post("/reportes/enviar")
+@admin_requerido
+def enviar_metricas():
+    _, respuesta = reportes_service.generar_metricas_diarias()
+    flash(f"Las métricas del día se enviaron a AnalytixPro ({respuesta['recibidas']} valores).", "success")
+    return redirect(url_for("admin.panel_reportes"))

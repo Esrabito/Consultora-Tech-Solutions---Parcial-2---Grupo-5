@@ -8,6 +8,7 @@ log básico según la decisión 3 del grupo).
 from flask import current_app
 
 from app.integrations import vericheck
+from app.services import auditoria
 from app.services.errores import DatosInvalidos
 
 LARGO_MINIMO_DNI = 7
@@ -38,6 +39,10 @@ def validar_identidad(datos):
         estado, motivo = ESTADO_NO_VALIDADO, respuesta.get("motivo") or MOTIVO_POR_DEFECTO
 
     current_app.logger.info("VeriCheck: DNI %s -> %s", _enmascarar(dni), estado)
+    # VeriCheck respondió, así que la llamada es OK aunque el resultado sea NO_VALIDADO.
+    auditoria.registrar(
+        "VeriCheck", "validar_identidad", True, f"DNI {_enmascarar(dni)} -> {estado}"
+    )
     return {"dni": dni, "nombre": nombre, "estado": estado, "motivo": motivo}
 
 

@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from dotenv import load_dotenv
 
@@ -15,6 +16,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
 
+    # HU-10: archivos adjuntos de las solicitudes. Se guardan fuera del código, en instance/.
+    ADJUNTOS_DIR = os.path.join(BASE_DIR, "instance", "adjuntos")
+    MAX_CONTENT_LENGTH = 3 * 1024 * 1024
+
 
 class TestConfig(Config):
     TESTING = True
@@ -23,3 +28,5 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     # En los tests mandamos formularios sin token CSRF; la protección la probamos aparte.
     WTF_CSRF_ENABLED = False
+    # Los adjuntos de las pruebas van a una carpeta temporal, no a instance/.
+    ADJUNTOS_DIR = tempfile.mkdtemp(prefix="adjuntos-test-")

@@ -23,6 +23,13 @@
         <i class="bi bi-shield-check" aria-hidden="true"></i> Validar con VeriCheck
       </button>
     </form>
+    {# HU-26: el administrador consulta al cliente en CRMMax. #}
+    <form action="{{ url_for('admin.consultar_cliente_en_crmmax', id_cliente=cliente.id_cliente) }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-ink">
+        <i class="bi bi-person-lines-fill" aria-hidden="true"></i> Consultar en CRMMax
+      </button>
+    </form>
   </div>
 </header>
 

@@ -145,10 +145,14 @@ def _manejar_solicitud(cliente, datos, tipo_solicitud):
         return _formulario_solicitud(cliente, datos, tipo_solicitud)
 
     try:
+        # HU-10: el archivo adjunto es opcional y llega aparte del resto del formulario.
+        archivo = request.files.get("adjunto")
         if tipo_solicitud == "plan":
-            solicitud_creada = solicitudes_service.crear_cambio_plan(cliente, datos)
+            solicitud_creada = solicitudes_service.crear_cambio_plan(cliente, datos, archivo)
         elif tipo_solicitud == "servicio":
-            solicitud_creada = solicitudes_service.crear_modificacion_servicio(cliente, datos)
+            solicitud_creada = solicitudes_service.crear_modificacion_servicio(
+                cliente, datos, archivo
+            )
         else:
             raise DatosInvalidos(
                 {"tipo_solicitud": "Elegí si querés modificar el plan o un servicio."}
