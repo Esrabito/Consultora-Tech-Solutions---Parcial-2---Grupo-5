@@ -100,7 +100,7 @@ run.py              punto de entrada
 | HU-06 | Gestionar planes | 6 | En testing |
 | HU-01 | Registrar cliente (con elección de plan) | 6 | Hecha |
 | HU-25 | Validar identidad (VeriCheck) | 3 | Hecha |
-| HU-30 | Registrar clientes en CRMMax | 2 | Hecha |
+| HU-30 | Registrar clientes en CRMMax (simulado) | 2 | En testing |
 | HU-31 | Consultar clientes registrados | 1 | En testing |
 | HU-04 | Gestionar clientes registrados (detalle) | 8 | En testing |
 | HU-03 | Consultar información personal | 2 | Hecha |

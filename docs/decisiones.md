@@ -82,6 +82,16 @@ o si queda como suposición a confirmar.
 
 
 
+## Decisiones de HU-30 Registrar clientes en CRMMax
+
+| Tema | Decisión | Tipo |
+|---|---|---|
+| Simulación | CRMMax no existe: se simula en `app/integrations/crmmax.py`, igual que VeriCheck. Si hubiera uno real, solo cambia ese archivo | REQUISITO (indicación del profesor) |
+| Cuándo se envía | Al completarse el registro del cliente, se envían sus datos y su plan | REQUISITO (HU-30) |
+| Falla simulada | Un email del dominio `@crmmax-caido.test` hace que CRMMax "no responda". Sirve para mostrar y probar el caso de error | SUPOSICIÓN |
+| Si CRMMax falla | El cliente queda registrado igual y se le avisa. No se deshace un alta por la caída de un sistema externo | SUPOSICIÓN |
+| Registro de la integración | Cada intento queda en el log de la aplicación (log básico, decisión 3). No hay tabla de auditoría: eso es HU-29 | DECISIÓN TÉCNICA |
+
 ## Planificación
 
 | Tema | Decisión |

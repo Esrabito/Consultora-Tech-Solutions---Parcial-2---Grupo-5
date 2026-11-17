@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.services import clientes as clientes_service
+from app.services import crm as crm_service
 from app.services import planes as planes_service
 from app.services.errores import Conflicto, DatosInvalidos, errores_para_formulario
 
@@ -18,6 +19,14 @@ def registro():
             return _formulario_registro(datos, errores_para_formulario(error)), 400
 
         flash(f"Registro de {cliente.nombre} completado correctamente.", "success")
+
+        sincronizacion = crm_service.registrar_cliente(cliente)
+        if not sincronizacion["ok"]:
+            flash(
+                f"{sincronizacion['motivo']} Tu registro quedó guardado, "
+                "lo vamos a sincronizar más adelante.",
+                "warning",
+            )
         return redirect(url_for("main.inicio"))
 
     return _formulario_registro(datos)
