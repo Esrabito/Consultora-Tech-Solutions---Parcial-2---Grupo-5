@@ -147,5 +147,9 @@ def _resolver(solicitud, estado, resultado):
         raise Conflicto(f"La solicitud ya fue resuelta (estado: {solicitud.estado}).")
     solicitud.estado = estado
     solicitud.resultado = resultado
+    # HU-16: al aprobar un cambio de plan, el cliente pasa a tener el plan pedido.
+    # Las solicitudes de servicio llevan id_servicio y no cambian el plan.
+    if estado == ESTADO_APROBADA and solicitud.id_servicio is None:
+        solicitud.cliente.id_plan = solicitud.id_plan_solicitado
     guardar_cambios()
     return solicitud

@@ -111,6 +111,7 @@ run.py              punto de entrada
 | HU-14 | Consultar solicitudes (administrador) | 1 | En testing |
 | HU-11 | Aprobar solicitud | 2 | En testing |
 | HU-12 | Rechazar solicitud | 2 | En testing |
+| HU-16 | Actualizar plan del cliente (al aprobar un cambio de plan) | — | En testing |
 
 > La numeración sigue el tablero de Trello (12/11): la tarjeta "Seleccionar plan en el registro" se unió a HU-01, CRMMax pasó a ser HU-30 y "Consultar clientes registrados" pasó a ser HU-31.
 

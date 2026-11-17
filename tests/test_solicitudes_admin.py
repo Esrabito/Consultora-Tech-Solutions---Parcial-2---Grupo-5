@@ -116,6 +116,49 @@ class TestAprobar:
         assert estado_de(app, 1)[0] == "Aprobada"
 
 
+def plan_del_cliente(app):
+    with app.app_context():
+        return db.session.get(Cliente, 1).plan.nombre_plan
+
+
+class TestActualizarPlan:
+    """HU-16: aprobar un cambio de plan actualiza el plan del cliente."""
+
+    def test_aprobar_un_cambio_de_plan_cambia_el_plan_del_cliente(
+        self, app, admin_client, con_solicitudes
+    ):
+        admin_client.post("/admin/solicitudes/1/aprobar", data={})
+
+        assert plan_del_cliente(app) == "Plan Pyme"
+
+    def test_el_cliente_ve_su_plan_nuevo(self, admin_client, con_solicitudes):
+        admin_client.post("/admin/solicitudes/1/aprobar", data={})
+        admin_client.post(
+            "/cliente/ingresar", data={"dni": "30123456", "email": "ana@example.com"}
+        )
+
+        html = admin_client.get("/cliente/mi-plan").get_data(as_text=True)
+
+        assert "Plan Pyme" in html
+
+    def test_aprobar_una_solicitud_de_servicio_no_cambia_el_plan(
+        self, app, admin_client, con_solicitudes
+    ):
+        admin_client.post("/admin/solicitudes/2/aprobar", data={})
+
+        assert plan_del_cliente(app) == "Plan Básico"
+
+    def test_rechazar_no_cambia_el_plan(self, app, admin_client, con_solicitudes):
+        admin_client.post("/admin/solicitudes/1/rechazar", data={"resultado": "No hay cupo"})
+
+        assert plan_del_cliente(app) == "Plan Básico"
+
+    def test_el_detalle_avisa_a_que_plan_pasa_el_cliente(self, admin_client, con_solicitudes):
+        html = admin_client.get("/admin/solicitudes/1").get_data(as_text=True)
+
+        assert "pasa al plan Plan Pyme" in html
+
+
 class TestRechazar:
     def test_rechaza_con_motivo(self, app, admin_client, con_solicitudes):
         respuesta = admin_client.post(

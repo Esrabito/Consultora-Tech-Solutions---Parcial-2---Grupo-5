@@ -49,6 +49,9 @@
     {% if solicitud.estado == "Pendiente" %}
       <form action="{{ url_for('admin.aprobar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if not solicitud.servicio %}
+          <p class="text-muted">Al aprobar, {{ solicitud.cliente.nombre }} pasa al plan {{ solicitud.plan_solicitado.nombre_plan }}.</p>
+        {% endif %}
         <label for="comentario" class="form-label">Comentario (opcional)</label>
         <textarea id="comentario" name="resultado" class="form-control mb-2" rows="2" maxlength="500"></textarea>
         <button type="submit" class="btn btn-primary">

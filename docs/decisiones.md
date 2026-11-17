@@ -100,7 +100,8 @@ o si queda como suposición a confirmar.
 | Aprobar | Pasa la solicitud de "Pendiente" a "Aprobada". El comentario es opcional; si no hay, se guarda "Solicitud aprobada." | REQUISITO (HU-11) / SUPOSICIÓN (comentario opcional) |
 | Rechazar | Pasa la solicitud a "Rechazada" y el motivo es obligatorio (5 a 500 caracteres), porque el cliente lo ve en "Mis solicitudes" | REQUISITO (HU-12) / SUPOSICIÓN (motivo obligatorio) |
 | Se resuelve una sola vez | Una solicitud aprobada o rechazada no se puede volver a resolver: devuelve un aviso y no cambia nada | DECISIÓN TÉCNICA |
-| Aprobar no modifica el plan | Aprobar solo cambia el estado. Actualizar el plan o los servicios del cliente es de HU-16 y HU-17, que quedan para otro sprint | REQUISITO (Trello) |
+| Actualizar el plan (HU-16) | Al aprobar una solicitud de cambio de plan, el cliente pasa al plan solicitado. La HU dice "luego de una factura aprobada", pero PagoNet y las facturas (HU-15) no están hechas, así que el cambio se aplica al aprobar | REQUISITO (HU-16) / SUPOSICIÓN (se aplica sin factura) |
+| Actualizar servicios (HU-17) | No se implementa: en nuestro modelo un cliente no tiene servicios propios, los servicios son los del plan. Aprobar una solicitud de servicio solo cambia su estado | SUPOSICIÓN |
 | Prioridades (HU-13) | No se hicieron: requieren una columna nueva en la tabla y la base ya creada no se actualiza sola | DECISIÓN TÉCNICA |
 
 ## Planificación
