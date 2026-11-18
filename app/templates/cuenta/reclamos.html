@@ -1,22 +1,20 @@
 {% extends "base.html" %}
+{% from "components/tags.html" import estado %}
 
 {% block titulo %}Mis reclamos{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Mis reclamos</li>
-  </ol>
-</nav>
-
 <header class="page-head">
   <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a></li>
+        <li><span aria-current="page">Mis reclamos</span></li>
+      </ul>
+    </nav>
     <h1>Mis reclamos</h1>
     <p class="page-head__lead">
-      Seguimiento de los reclamos realizados por {{ cliente.nombre }}.
+      Consultá el estado y la respuesta de tus reclamos.
     </p>
   </div>
   <div class="page-head__actions">
@@ -32,7 +30,7 @@
       <caption class="visually-hidden">Reclamos del cliente</caption>
       <thead>
         <tr>
-          <th scope="col">N.º</th>
+          <th scope="col" class="cell-id">N.º</th>
           <th scope="col">Fecha de creación</th>
           <th scope="col">Detalle</th>
           <th scope="col">Estado</th>
@@ -42,7 +40,7 @@
       <tbody>
         {% for item in reclamos %}
           <tr>
-            <td data-label="N.º">{{ item.id_reclamo }}</td>
+            <td class="cell-id" data-label="N.º">{{ item.id_reclamo }}</td>
             <td data-label="Fecha de creación">
               {% if item.fecha_creacion %}
                 {{ item.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}
@@ -50,11 +48,11 @@
                 No disponible
               {% endif %}
             </td>
-            <td data-label="Detalle">{{ item.mensaje_reclamo }}</td>
-            <td data-label="Estado">{{ item.estado_reclamo }}</td>
+            <td data-label="Detalle"><span class="preserve-lines">{{ item.mensaje_reclamo }}</span></td>
+            <td data-label="Estado">{{ estado(item.estado_reclamo) }}</td>
             <td data-label="Respuesta">
               {% if item.mensaje_respuesta %}
-                {{ item.mensaje_respuesta }}
+                <span class="preserve-lines">{{ item.mensaje_respuesta }}</span>
               {% elif item.estado_reclamo in ("Resuelto", "Cerrado") %}
                 Sin respuesta informada.
               {% else %}
@@ -69,7 +67,7 @@
 {% else %}
   <div class="empty-state">
     <span class="empty-state__icon" aria-hidden="true">
-      <i class="bi bi-inbox"></i>
+      <i class="bi bi-exclamation-circle"></i>
     </span>
     <h2>No tenés reclamos registrados</h2>
     <p>Cuando realices un reclamo, vas a poder consultar acá su estado y respuesta.</p>

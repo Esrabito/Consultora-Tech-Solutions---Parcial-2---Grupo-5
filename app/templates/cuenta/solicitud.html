@@ -3,17 +3,15 @@
 {% block titulo %}Nueva solicitud{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Nueva solicitud</li>
-  </ol>
-</nav>
-
 <header class="page-head">
   <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a></li>
+        <li><a href="{{ url_for('cuenta.solicitudes') }}">Mis solicitudes</a></li>
+        <li><span aria-current="page">Nueva solicitud</span></li>
+      </ul>
+    </nav>
     <h1>Nueva solicitud</h1>
     <p class="page-head__lead">
       Elegí qué querés modificar para completar la solicitud correspondiente.
@@ -21,7 +19,7 @@
   </div>
 </header>
 
-<div class="form-layout">
+<div class="form-layout form-layout--narrow">
   <div class="form-sheet">
     {% if errores.general %}
       <div class="notice notice--warning mb-4" role="alert">
@@ -36,7 +34,9 @@
       <div class="mb-4">
         <label for="tipo_solicitud" class="form-label">¿Qué querés modificar?</label>
         <select id="tipo_solicitud" name="tipo_solicitud"
-                class="form-select {% if errores.tipo_solicitud %}is-invalid{% endif %}">
+                class="form-select {% if errores.tipo_solicitud %}is-invalid{% endif %}"
+                required
+                {% if errores.tipo_solicitud %}aria-invalid="true" aria-describedby="tipo-solicitud-error"{% endif %}>
           <option value="">Seleccioná una opción</option>
           <option value="plan" {% if tipo_solicitud == "plan" %}selected{% endif %}>
             Mi plan
@@ -46,22 +46,23 @@
           </option>
         </select>
         {% if errores.tipo_solicitud %}
-          <div class="invalid-feedback">{{ errores.tipo_solicitud }}</div>
+          <div class="invalid-feedback" id="tipo-solicitud-error">{{ errores.tipo_solicitud }}</div>
         {% endif %}
       </div>
 
-      <section id="form-plan" {% if tipo_solicitud != "plan" %}hidden{% endif %}
+      <section id="form-plan" {% if tipo_solicitud != "plan" %}hidden{% endif %} class="field-group mb-4"
                aria-labelledby="form-plan-titulo">
-        <h2 id="form-plan-titulo" class="h5">Solicitud de cambio de plan</h2>
+        <h2 id="form-plan-titulo" class="sheet-title">Solicitud de cambio de plan</h2>
         {% if cliente.plan %}
-          <p class="alert alert-light border">
-            <strong>Plan actual:</strong> {{ cliente.plan.nombre_plan }}
-            · {{ cliente.plan.valor_plan|moneda }}
-          </p>
+          <div class="notice notice--info mb-3">
+            <i class="bi bi-box-seam notice__icon" aria-hidden="true"></i>
+            <p><strong>Plan actual</strong> · {{ cliente.plan.nombre_plan }} · {{ cliente.plan.valor_plan|moneda }}</p>
+          </div>
           <div class="mb-4">
             <label for="id_plan_solicitado" class="form-label">Nuevo plan</label>
             <select id="id_plan_solicitado" name="id_plan_solicitado"
-                    class="form-select {% if errores.id_plan_solicitado %}is-invalid{% endif %}">
+                    class="form-select {% if errores.id_plan_solicitado %}is-invalid{% endif %}"
+                    {% if errores.id_plan_solicitado %}aria-invalid="true" aria-describedby="nuevo-plan-error"{% endif %}>
               <option value="">Seleccioná un plan</option>
               {% for plan in planes %}
                 <option value="{{ plan.id_plan }}"
@@ -71,7 +72,7 @@
               {% endfor %}
             </select>
             {% if errores.id_plan_solicitado %}
-              <div class="invalid-feedback">{{ errores.id_plan_solicitado }}</div>
+              <div class="invalid-feedback" id="nuevo-plan-error">{{ errores.id_plan_solicitado }}</div>
             {% endif %}
           </div>
         {% else %}
@@ -81,14 +82,15 @@
         {% endif %}
       </section>
 
-      <section id="form-servicio" {% if tipo_solicitud != "servicio" %}hidden{% endif %}
+      <section id="form-servicio" {% if tipo_solicitud != "servicio" %}hidden{% endif %} class="field-group mb-4"
                aria-labelledby="form-servicio-titulo">
-        <h2 id="form-servicio-titulo" class="h5">Solicitud de modificación de servicio</h2>
+        <h2 id="form-servicio-titulo" class="sheet-title">Solicitud de modificación de servicio</h2>
         {% if cliente.plan and cliente.plan.servicios %}
           <div class="mb-4">
             <label for="id_servicio" class="form-label">Servicio a modificar</label>
             <select id="id_servicio" name="id_servicio"
-                    class="form-select {% if errores.id_servicio %}is-invalid{% endif %}">
+                    class="form-select {% if errores.id_servicio %}is-invalid{% endif %}"
+                    {% if errores.id_servicio %}aria-invalid="true" aria-describedby="servicio-error"{% endif %}>
               <option value="">Seleccioná un servicio</option>
               {% for servicio in cliente.plan.servicios %}
                 <option value="{{ servicio.id_servicio }}"
@@ -98,7 +100,7 @@
               {% endfor %}
             </select>
             {% if errores.id_servicio %}
-              <div class="invalid-feedback">{{ errores.id_servicio }}</div>
+              <div class="invalid-feedback" id="servicio-error">{{ errores.id_servicio }}</div>
             {% endif %}
           </div>
           <div class="mb-4">
@@ -106,9 +108,10 @@
             <input type="text" id="tipo_modificacion" name="tipo_modificacion"
                    maxlength="50"
                    class="form-control {% if errores.tipo_modificacion %}is-invalid{% endif %}"
-                   value="{{ datos.get('tipo_modificacion', '') }}" required>
+                   value="{{ datos.get('tipo_modificacion', '') }}" required
+                   {% if errores.tipo_modificacion %}aria-invalid="true" aria-describedby="modificacion-error"{% endif %}>
             {% if errores.tipo_modificacion %}
-              <div class="invalid-feedback">{{ errores.tipo_modificacion }}</div>
+              <div class="invalid-feedback" id="modificacion-error">{{ errores.tipo_modificacion }}</div>
             {% endif %}
           </div>
         {% else %}
@@ -121,27 +124,31 @@
       <div id="campo-motivo" class="mb-4" {% if not tipo_solicitud %}hidden{% endif %}>
         <label for="motivo" class="form-label">Motivo de la solicitud o detalle</label>
         <textarea id="motivo" name="motivo" rows="5" maxlength="500"
-                  class="form-control {% if errores.motivo %}is-invalid{% endif %}">{{ datos.get('motivo', '') }}</textarea>
+                  class="form-control {% if errores.motivo %}is-invalid{% endif %}" required
+                  {% if errores.motivo %}aria-invalid="true" aria-describedby="motivo-error"
+                  {% else %}aria-describedby="motivo-ayuda"{% endif %}>{{ datos.get('motivo', '') }}</textarea>
         {% if errores.motivo %}
-          <div class="invalid-feedback">{{ errores.motivo }}</div>
+          <div class="invalid-feedback" id="motivo-error">{{ errores.motivo }}</div>
         {% else %}
-          <div class="form-text">Describí el motivo de tu solicitud.</div>
+          <div class="form-text" id="motivo-ayuda">Describí el motivo de tu solicitud.</div>
         {% endif %}
       </div>
 
       <div id="campo-adjunto" class="mb-4" {% if not tipo_solicitud %}hidden{% endif %}>
         <label for="adjunto" class="form-label">Adjuntar documentación (opcional)</label>
         <input type="file" id="adjunto" name="adjunto" accept=".pdf,.png,.jpg,.jpeg"
-               class="form-control {% if errores.adjunto %}is-invalid{% endif %}">
+               class="form-control {% if errores.adjunto %}is-invalid{% endif %}"
+               {% if errores.adjunto %}aria-invalid="true" aria-describedby="adjunto-error"
+               {% else %}aria-describedby="adjunto-ayuda"{% endif %}>
         {% if errores.adjunto %}
-          <div class="invalid-feedback">{{ errores.adjunto }}</div>
+          <div class="invalid-feedback" id="adjunto-error">{{ errores.adjunto }}</div>
         {% else %}
-          <div class="form-text">PDF, PNG o JPG de hasta 2 MB.</div>
+          <div class="form-text" id="adjunto-ayuda">PDF, PNG o JPG de hasta 2 MB.</div>
         {% endif %}
       </div>
 
-      <div id="acciones-formulario" class="form-actions" {% if not tipo_solicitud %}hidden{% endif %}>
-        <button type="submit" class="btn btn-primary">
+      <div class="form-actions">
+        <button id="enviar-solicitud" type="submit" class="btn btn-primary" {% if not tipo_solicitud %}hidden{% endif %}>
           <i class="bi bi-send" aria-hidden="true"></i>
           Confirmar solicitud
         </button>
@@ -151,6 +158,13 @@
       </div>
     </form>
   </div>
+
+  <aside class="form-aside" aria-labelledby="seguimiento-titulo">
+    <h2 id="seguimiento-titulo">Seguimiento</h2>
+    <p>Una vez enviada la solicitud, podés consultar su estado y el resultado en
+      <a href="{{ url_for('cuenta.solicitudes') }}">Mis solicitudes</a>.
+    </p>
+  </aside>
 </div>
 {% endblock %}
 
@@ -161,7 +175,7 @@
   const servicio = document.getElementById("form-servicio");
   const motivo = document.getElementById("campo-motivo");
   const adjunto = document.getElementById("campo-adjunto");
-  const acciones = document.getElementById("acciones-formulario");
+  const enviar = document.getElementById("enviar-solicitud");
 
   function actualizarFormulario() {
     const tipo = selector.value;
@@ -169,9 +183,10 @@
     servicio.hidden = tipo !== "servicio";
     motivo.hidden = !tipo;
     adjunto.hidden = !tipo;
-    acciones.hidden = !tipo;
+    enviar.hidden = !tipo;
   }
 
   selector.addEventListener("change", actualizarFormulario);
+  actualizarFormulario();
 </script>
 {% endblock %}

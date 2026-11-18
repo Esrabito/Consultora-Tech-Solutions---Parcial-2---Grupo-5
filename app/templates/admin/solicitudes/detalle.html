@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/tags.html" import estado, prioridad %}
 
 {% block titulo %}Solicitud N.º {{ solicitud.id_solicitud }}{% endblock %}
 
@@ -13,13 +14,15 @@
       </ul>
     </nav>
     <h1>Solicitud N.º {{ solicitud.id_solicitud }}</h1>
-    <p class="page-head__meta">{{ solicitud.tipo_modificacion }} · {{ solicitud.estado }}</p>
+    <p class="page-head__meta">{{ solicitud.tipo_modificacion }}</p>
   </div>
 </header>
 
-<section class="form-layout">
-  <div class="form-sheet">
-    <h2>Detalle</h2>
+<div class="form-layout">
+  <section class="form-sheet" aria-labelledby="detalle-titulo">
+    <h2 class="sheet-title" id="detalle-titulo">
+      <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Detalle
+    </h2>
     <dl class="ledger">
       <div class="ledger__row">
         <dt>Cliente</dt>
@@ -36,28 +39,35 @@
       {% else %}
         <div class="ledger__row"><dt>Plan solicitado</dt><dd>{{ solicitud.plan_solicitado.nombre_plan }}</dd></div>
       {% endif %}
-      <div class="ledger__row"><dt>Motivo</dt><dd>{{ solicitud.motivo }}</dd></div>
-      <div class="ledger__row"><dt>Estado</dt><dd>{{ solicitud.estado }}</dd></div>
-      <div class="ledger__row"><dt>Prioridad</dt><dd>{{ solicitud.prioridad }}</dd></div>
+      <div class="ledger__row"><dt>Motivo</dt><dd class="preserve-lines">{{ solicitud.motivo }}</dd></div>
+      <div class="ledger__row"><dt>Estado</dt><dd>{{ estado(solicitud.estado) }}</dd></div>
+      <div class="ledger__row"><dt>Prioridad</dt><dd>{{ prioridad(solicitud.prioridad) }}</dd></div>
       {% if solicitud.adjunto %}
         <div class="ledger__row">
           <dt>Adjunto</dt>
-          <dd><a href="{{ url_for('admin.descargar_adjunto', id_solicitud=solicitud.id_solicitud) }}">Descargar archivo</a></dd>
+          <dd>
+            <a href="{{ url_for('admin.descargar_adjunto', id_solicitud=solicitud.id_solicitud) }}"
+               class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-download" aria-hidden="true"></i> Descargar archivo
+            </a>
+          </dd>
         </div>
       {% endif %}
       {% if solicitud.resultado %}
-        <div class="ledger__row"><dt>Resultado</dt><dd>{{ solicitud.resultado }}</dd></div>
+        <div class="ledger__row"><dt>Resultado</dt><dd class="preserve-lines">{{ solicitud.resultado }}</dd></div>
       {% endif %}
     </dl>
-  </div>
+  </section>
 
-  <aside class="form-aside" aria-labelledby="resolver-titulo">
-    <h2 id="resolver-titulo">Resolver</h2>
+  <section class="form-sheet" aria-labelledby="resolver-titulo">
+    <h2 class="sheet-title" id="resolver-titulo">
+      <i class="bi bi-list-check" aria-hidden="true"></i> Gestionar solicitud
+    </h2>
     {% if solicitud.estado == "Pendiente" %}
-      <form action="{{ url_for('admin.asignar_prioridad', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
+      <form action="{{ url_for('admin.asignar_prioridad', id_solicitud=solicitud.id_solicitud) }}" method="post" class="field-group">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="prioridad" class="form-label">Prioridad</label>
-        <div class="d-flex gap-2">
+        <div class="inline-fields">
           <select id="prioridad" name="prioridad" class="form-select">
             {% for opcion in ("Alta", "Media", "Baja") %}
               <option value="{{ opcion }}" {% if opcion == solicitud.prioridad %}selected{% endif %}>{{ opcion }}</option>
@@ -67,10 +77,13 @@
         </div>
       </form>
 
-      <form action="{{ url_for('admin.aprobar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="mb-4">
+      <form action="{{ url_for('admin.aprobar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="field-group">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         {% if not solicitud.servicio %}
-          <p class="text-muted">Al aprobar se genera la factura en PagoNet y {{ solicitud.cliente.nombre }} pasa al plan {{ solicitud.plan_solicitado.nombre_plan }}.</p>
+          <div class="notice notice--info mb-3">
+            <i class="bi bi-info-circle-fill notice__icon" aria-hidden="true"></i>
+            <p>Al aprobar se genera la factura en PagoNet y {{ solicitud.cliente.nombre }} pasa al plan {{ solicitud.plan_solicitado.nombre_plan }}.</p>
+          </div>
         {% endif %}
         <label for="comentario" class="form-label">Comentario (opcional)</label>
         <textarea id="comentario" name="resultado" class="form-control mb-2" rows="2" maxlength="500"></textarea>
@@ -79,20 +92,17 @@
         </button>
       </form>
 
-      <form action="{{ url_for('admin.rechazar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post">
+      <form action="{{ url_for('admin.rechazar_solicitud', id_solicitud=solicitud.id_solicitud) }}" method="post" class="field-group">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="motivo-rechazo" class="form-label">Motivo del rechazo</label>
         <textarea id="motivo-rechazo" name="resultado" class="form-control mb-2" rows="2" maxlength="500" required></textarea>
-        <button type="submit" class="btn btn-outline-ink">
+        <button type="submit" class="btn btn-outline-danger">
           <i class="bi bi-x-lg" aria-hidden="true"></i> Rechazar
         </button>
       </form>
     {% else %}
       <p class="text-muted">Esta solicitud ya fue resuelta y no se puede modificar.</p>
     {% endif %}
-    <p class="text-muted mt-3">
-      <a href="{{ url_for('admin.listar_solicitudes') }}">Volver al listado</a>
-    </p>
-  </aside>
-</section>
+  </section>
+</div>
 {% endblock %}

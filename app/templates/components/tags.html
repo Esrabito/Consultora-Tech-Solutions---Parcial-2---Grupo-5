@@ -1,0 +1,18 @@
+{% macro estado(etiqueta) -%}
+  {% set variantes = {
+    'Pendiente': 'pending',
+    'Aprobada': 'success',
+    'Resuelta': 'success',
+    'Resuelto': 'success',
+    'Rechazada': 'danger',
+    'Cerrado': 'muted',
+    'OK': 'success',
+    'ERROR': 'danger'
+  } %}
+  <span class="tag tag--{{ variantes.get(etiqueta, 'muted') }}">{{ etiqueta }}</span>
+{%- endmacro %}
+
+{% macro prioridad(etiqueta) -%}
+  {% set variantes = {'Alta': 'pending', 'Media': 'info', 'Baja': 'muted'} %}
+  <span class="tag tag--{{ variantes.get(etiqueta, 'muted') }}">{{ etiqueta }}</span>
+{%- endmacro %}

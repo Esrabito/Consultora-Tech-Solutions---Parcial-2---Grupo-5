@@ -105,6 +105,8 @@ class TestMiPlan:
             "No tenés reclamos registrados.",
         ]:
             assert dato in html
+        assert 'href="/cliente/reclamo"' in html
+        assert 'href="/cliente/reclamos"' in html
         assert "Administración" not in html
 
     def test_cada_cliente_ve_solo_su_propio_plan(self, app, client, ana):

@@ -33,43 +33,58 @@
   </div>
 </header>
 
-<section class="form-layout">
-  <div class="form-sheet">
-    <h2>Datos personales</h2>
-    <dl class="ledger">
+<div class="sheet-grid">
+  <section class="form-sheet" aria-labelledby="datos-personales-titulo">
+    <h2 class="sheet-title" id="datos-personales-titulo">
+      <i class="bi bi-person-vcard" aria-hidden="true"></i> Datos personales
+    </h2>
+    <dl class="ledger ledger--compact">
       <div class="ledger__row"><dt>Nombre</dt><dd>{{ cliente.nombre }}</dd></div>
       <div class="ledger__row"><dt>DNI</dt><dd>{{ cliente.dni }}</dd></div>
       <div class="ledger__row"><dt>Email</dt><dd>{{ cliente.email }}</dd></div>
       <div class="ledger__row"><dt>Teléfono</dt><dd>{{ cliente.telefono }}</dd></div>
     </dl>
 
-    <h2 class="mt-4">Plan contratado</h2>
-    <dl class="ledger">
+  </section>
+
+  <section class="form-sheet" aria-labelledby="plan-titulo">
+    <h2 class="sheet-title" id="plan-titulo">
+      <i class="bi bi-box-seam" aria-hidden="true"></i> Plan contratado
+    </h2>
+    <dl class="ledger ledger--compact">
       <div class="ledger__row"><dt>Plan</dt><dd>{{ cliente.plan.nombre_plan }}</dd></div>
       <div class="ledger__row"><dt>Valor</dt><dd>{{ cliente.plan.valor_plan|moneda }}</dd></div>
       <div class="ledger__row">
         <dt>Servicios</dt>
         <dd>
-          <div class="tag-list">
-            {% for servicio in cliente.plan.servicios %}
-              <span class="tag">{{ servicio.tipo_servicio }}</span>
-            {% endfor %}
-          </div>
+          {% if cliente.plan.servicios %}
+            <ul class="tag-list list-unstyled mb-0">
+              {% for servicio in cliente.plan.servicios %}
+                <li class="tag">{{ servicio.tipo_servicio }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            Sin servicios cargados.
+          {% endif %}
         </dd>
       </div>
     </dl>
-  </div>
+  </section>
 
-  <aside class="form-aside" aria-labelledby="gestiones-titulo">
-    <h2 id="gestiones-titulo">Gestiones del cliente</h2>
-    <ul>
-      {# Solicitudes y reclamos llegan en sprints posteriores (épicas de gestión). #}
-      <li>Solicitudes: sin registros.</li>
-      <li>Reclamos: sin registros.</li>
-    </ul>
-    <p class="text-muted">
-      <a href="{{ url_for('admin.listar_clientes') }}">Volver al listado</a>
-    </p>
-  </aside>
-</section>
+  <section class="form-sheet" aria-labelledby="gestiones-titulo">
+    <h2 class="sheet-title" id="gestiones-titulo">
+      <i class="bi bi-inbox" aria-hidden="true"></i> Gestiones del cliente
+    </h2>
+    <dl class="ledger ledger--compact">
+      <div class="ledger__row">
+        <dt>Solicitudes</dt>
+        <dd>{{ cliente.solicitudes|length if cliente.solicitudes else 'sin registros' }}</dd>
+      </div>
+      <div class="ledger__row">
+        <dt>Reclamos</dt>
+        <dd>{{ cliente.reclamos|length if cliente.reclamos else 'sin registros' }}</dd>
+      </div>
+    </dl>
+  </section>
+</div>
 {% endblock %}
