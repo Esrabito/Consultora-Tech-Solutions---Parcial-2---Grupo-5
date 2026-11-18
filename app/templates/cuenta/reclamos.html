@@ -53,8 +53,10 @@
             <td data-label="Detalle">{{ item.mensaje_reclamo }}</td>
             <td data-label="Estado">{{ item.estado_reclamo }}</td>
             <td data-label="Respuesta">
-              {% if item.estado_reclamo in ("Resuelto", "Cerrado") %}
-                {{ item.mensaje_respuesta or "Sin respuesta informada." }}
+              {% if item.mensaje_respuesta %}
+                {{ item.mensaje_respuesta }}
+              {% elif item.estado_reclamo in ("Resuelto", "Cerrado") %}
+                Sin respuesta informada.
               {% else %}
                 —
               {% endif %}
@@ -71,8 +73,8 @@
     </span>
     <h2>No tenés reclamos registrados</h2>
     <p>Cuando realices un reclamo, vas a poder consultar acá su estado y respuesta.</p>
-    <a href="{{ url_for('cuenta.reclamo') }}" class="btn btn-primary">
-      Nuevo reclamo
+    <a href="{{ url_for('cuenta.reclamo') }}" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo reclamo
     </a>
   </div>
 {% endif %}

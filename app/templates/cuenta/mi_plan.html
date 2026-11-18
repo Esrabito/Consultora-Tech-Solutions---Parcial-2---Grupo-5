@@ -124,15 +124,21 @@
           <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
           Mis reclamos
         </h2>
-        <button type="button" class="btn btn-outline-primary btn-sm mb-3" disabled
-                title="Funcionalidad disponible próximamente">
+        <a href="{{ url_for('cuenta.reclamos') }}" class="btn btn-outline-primary btn-sm mb-3">
+          <i class="bi bi-eye" aria-hidden="true"></i>
+          Ver todos
+        </a>
+        <a href="{{ url_for('cuenta.reclamo') }}" class="btn btn-outline-primary btn-sm mb-3">
           <i class="bi bi-plus-lg" aria-hidden="true"></i>
           Nuevo reclamo
-        </button>
+        </a>
         {% if reclamos %}
           <ul class="list-group">
             {% for reclamo in reclamos %}
-              <li class="list-group-item">{{ reclamo }}</li>
+              <li class="list-group-item">
+                <strong>Reclamo #{{ reclamo.id_reclamo }}</strong> - Estado: {{ reclamo.estado_reclamo }}
+                <span class="d-block text-muted">{{ reclamo.mensaje_reclamo }}</span>
+              </li>
             {% endfor %}
           </ul>
         {% else %}

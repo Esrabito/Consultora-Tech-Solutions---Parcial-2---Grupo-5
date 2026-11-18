@@ -374,3 +374,43 @@ def enviar_metricas():
     _, respuesta = reportes_service.generar_metricas_diarias()
     flash(f"Las métricas del día se enviaron a AnalytixPro ({respuesta['recibidas']} valores).", "success")
     return redirect(url_for("admin.panel_reportes"))
+
+
+# ---------------------------------------------------------------------------
+# HU-33 Consultar reclamos de clientes / HU-20 Gestionar reclamos
+# ---------------------------------------------------------------------------
+
+from app.services import reclamos as reclamos_service
+
+@admin_bp.get("/reclamos")
+@admin_requerido
+def listar_reclamos():
+    return render_template(
+        "admin/reclamos/lista.html", reclamos=reclamos_service.listar_todos()
+    )
+
+
+@admin_bp.get("/reclamos/<int:id_reclamo>")
+@admin_requerido
+def detalle_reclamo_admin(id_reclamo):
+    try:
+        reclamo = reclamos_service.obtener_reclamo(id_reclamo)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_reclamos"))
+    return render_template("admin/reclamos/detalle.html", reclamo=reclamo)
+
+
+@admin_bp.post("/reclamos/<int:id_reclamo>/resolver")
+@admin_requerido
+def resolver_reclamo_admin(id_reclamo):
+    try:
+        reclamos_service.actualizar_reclamo(id_reclamo, request.form)
+    except NoEncontrado as error:
+        flash(error.mensaje, "warning")
+        return redirect(url_for("admin.listar_reclamos"))
+    except (DatosInvalidos, Conflicto) as error:
+        flash(" ".join(errores_para_formulario(error).values()), "danger")
+    else:
+        flash(f"El reclamo N.º {id_reclamo} fue actualizado y se notificó al cliente.", "success")
+    return redirect(url_for("admin.detalle_reclamo_admin", id_reclamo=id_reclamo))

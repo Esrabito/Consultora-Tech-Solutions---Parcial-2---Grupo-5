@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block titulo %}Gestión de reclamos{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('admin.inicio') }}">Panel</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Reclamos</li>
+  </ol>
+</nav>
+
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Reclamos de clientes</h1>
+    <p class="page-head__lead">
+      Listado general de reclamos recibidos y pendientes de resolución.
+    </p>
+  </div>
+</header>
+
+{% if reclamos %}
+  <div class="data-sheet">
+    <table class="data-table">
+      <caption class="visually-hidden">Listado de reclamos</caption>
+      <thead>
+        <tr>
+          <th scope="col">N.º</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Detalle</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in reclamos %}
+          <tr>
+            <td data-label="N.º">{{ item.id_reclamo }}</td>
+            <td data-label="Cliente">{{ item.cliente.nombre }}</td>
+            <td data-label="Fecha">
+              {% if item.fecha_creacion %}
+                {{ item.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td data-label="Detalle">{{ item.mensaje_reclamo }}</td>
+            <td data-label="Estado">
+              <span class="badge bg-{{ 'success' if item.estado_reclamo == 'Resuelto' else 'warning' }}">
+                {{ item.estado_reclamo }}
+              </span>
+            </td>
+            <td data-label="Acciones">
+              <a href="{{ url_for('admin.detalle_reclamo_admin', id_reclamo=item.id_reclamo) }}" class="btn btn-outline-primary btn-sm">
+                Ver / Responder
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon" aria-hidden="true">
+      <i class="bi bi-inbox"></i>
+    </span>
+    <h2>No hay reclamos registrados</h2>
+    <p>Los reclamos que envíen los clientes aparecerán en este listado.</p>
+  </div>
+{% endif %}
+{% endblock %}

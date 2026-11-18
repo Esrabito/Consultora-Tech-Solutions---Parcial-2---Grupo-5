@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block titulo %}Detalle de reclamo{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('admin.listar_reclamos') }}">Reclamos</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Detalle N.º {{ reclamo.id_reclamo }}</li>
+  </ol>
+</nav>
+
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Reclamo N.º {{ reclamo.id_reclamo }}</h1>
+    <p class="page-head__lead">
+      Cliente: <strong>{{ reclamo.cliente.nombre }}</strong> ({{ reclamo.cliente.email }})
+    </p>
+  </div>
+</header>
+
+<div class="form-layout">
+  <div class="form-sheet mb-4">
+    <h3 class="h5 mb-3">Información del reclamo</h3>
+    <p><strong>Fecha de creación:</strong> {{ reclamo.fecha_creacion.strftime("%d/%m/%Y %H:%M") if reclamo.fecha_creacion else '—' }}</p>
+    <p><strong>Estado actual:</strong> <span class="badge bg-secondary">{{ reclamo.estado_reclamo }}</span></p>
+    
+    <div class="mb-3">
+      <label class="form-label font-weight-bold">Detalle / Mensaje del cliente:</label>
+      <div class="p-3 bg-light border rounded">
+        {{ reclamo.mensaje_reclamo }}
+      </div>
+    </div>
+  </div>
+
+  <div class="form-sheet">
+    <h3 class="h5 mb-3">Gestionar y responder</h3>
+    
+    <form method="post" action="{{ url_for('admin.resolver_reclamo_admin', id_reclamo=reclamo.id_reclamo) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="mb-3">
+        <label for="estado_reclamo" class="form-label">Cambiar estado</label>
+        <select id="estado_reclamo" name="estado_reclamo" class="form-control" required>
+          <option value="Pendiente" {% if reclamo.estado_reclamo == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+          <option value="Resuelto" {% if reclamo.estado_reclamo == 'Resuelto' %}selected{% endif %}>Resuelto</option>
+          <option value="Cerrado" {% if reclamo.estado_reclamo == 'Cerrado' %}selected{% endif %}>Cerrado</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="mensaje_respuesta" class="form-label">Respuesta al cliente</label>
+        <textarea id="mensaje_respuesta" name="mensaje_respuesta" rows="4" maxlength="1000"
+                  class="form-control" required>{{ reclamo.mensaje_respuesta or '' }}</textarea>
+        <div class="form-text">Escribí la resolución o respuesta oficial que recibirá el cliente (y se notificará por NotiSys).</div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
+          Guardar y Notificar
+        </button>
+        <a href="{{ url_for('admin.listar_reclamos') }}" class="btn btn-outline-secondary">
+          Volver al listado
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

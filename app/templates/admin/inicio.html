@@ -97,6 +97,23 @@
   <article class="module">
     <div class="module__heading">
       <h2 class="module__title">
+        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+        Reclamos
+      </h2>
+    </div>
+    <p class="module__desc">
+      Gestión de reclamos y respuestas enviadas a los clientes.
+    </p>
+    <div class="module__action">
+     <a href="{{ url_for('admin.listar_reclamos') }}" class="btn btn-outline-ink">
+        Ver reclamos
+    </a>
+    </div>
+  </article>
+
+  <article class="module">
+    <div class="module__heading">
+      <h2 class="module__title">
         <i class="bi bi-receipt" aria-hidden="true"></i>
         Facturas
       </h2>
