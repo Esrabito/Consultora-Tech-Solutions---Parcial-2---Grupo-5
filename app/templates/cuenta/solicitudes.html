@@ -1,22 +1,20 @@
 {% extends "base.html" %}
+{% from "components/tags.html" import estado %}
 
 {% block titulo %}Mis solicitudes{% endblock %}
 
 {% block contenido %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Mis solicitudes</li>
-  </ol>
-</nav>
-
 <header class="page-head">
   <div class="page-head__text">
+    <nav aria-label="Ubicación">
+      <ul class="trail">
+        <li><a href="{{ url_for('cuenta.mi_informacion') }}">Mi información</a></li>
+        <li><span aria-current="page">Mis solicitudes</span></li>
+      </ul>
+    </nav>
     <h1>Mis solicitudes</h1>
     <p class="page-head__lead">
-      Seguimiento de las solicitudes realizadas por {{ cliente.nombre }}.
+      Consultá el estado y el resultado de tus solicitudes.
     </p>
   </div>
   <div class="page-head__actions">
@@ -32,7 +30,7 @@
       <caption class="visually-hidden">Solicitudes del cliente</caption>
       <thead>
         <tr>
-          <th scope="col">N.º</th>
+          <th scope="col" class="cell-id">N.º</th>
           <th scope="col">Tipo</th>
           <th scope="col">Fecha de creación</th>
           <th scope="col">Estado</th>
@@ -42,12 +40,14 @@
       <tbody>
         {% for solicitud in solicitudes %}
           <tr>
-            <td data-label="N.º">{{ solicitud.id_solicitud }}</td>
-            <td data-label="Tipo">
-              {{ solicitud.tipo_modificacion }}
-              {% if solicitud.servicio %}
-                <span class="d-block text-muted">Servicio: {{ solicitud.servicio.tipo_servicio }}</span>
-              {% endif %}
+            <td class="cell-id" data-label="N.º">{{ solicitud.id_solicitud }}</td>
+            <td class="cell-main" data-label="Tipo">
+              <div>
+                {{ solicitud.tipo_modificacion }}
+                {% if solicitud.servicio %}
+                  <span class="cell-meta">{{ solicitud.servicio.tipo_servicio }}</span>
+                {% endif %}
+              </div>
             </td>
             <td data-label="Fecha de creación">
               {% if solicitud.fecha_creacion %}
@@ -56,10 +56,10 @@
                 No disponible
               {% endif %}
             </td>
-            <td data-label="Estado">{{ solicitud.estado }}</td>
+            <td data-label="Estado">{{ estado(solicitud.estado) }}</td>
             <td data-label="Resultado">
-              {% if solicitud.estado in ("Rechazada", "Resuelta") %}
-                {{ solicitud.resultado or "Sin resultado informado." }}
+              {% if solicitud.estado in ("Aprobada", "Rechazada", "Resuelta") %}
+                <span class="preserve-lines">{{ solicitud.resultado or "Sin resultado informado." }}</span>
               {% else %}
                 —
               {% endif %}

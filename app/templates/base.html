@@ -1,3 +1,9 @@
+{% macro nav_link(texto, destino, activo) -%}
+  <li>
+    <a class="site-nav__link{% if activo %} is-active{% endif %}" href="{{ url_for(destino) }}"
+       {% if activo %}aria-current="{{ 'page' if request.endpoint == destino or request.endpoint == 'cuenta.mi_plan' else 'location' }}"{% endif %}>{{ texto }}</a>
+  </li>
+{%- endmacro %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -31,60 +37,33 @@
         <span class="menu-toggle__bar"></span>
       </button>
 
+      {% set endpoint = request.endpoint or '' %}
+      {% set cuenta_activa = session.get('id_cliente') and endpoint.startswith('cuenta.') %}
+      {% set menu_admin = session.get('es_admin') and not cuenta_activa %}
       <div class="collapse site-nav-wrap" id="menuPrincipal">
         <nav class="site-nav" aria-label="Navegación principal">
           <ul class="site-nav__list">
-            {% if session.get('es_admin') %}
-              <li>
-                <a class="site-nav__link {% if request.endpoint == 'admin.inicio' %}is-active{% endif %}"
-                   href="{{ url_for('admin.inicio') }}"
-                   {% if request.endpoint == 'admin.inicio' %}aria-current="page"{% endif %}>Panel</a>
-              </li>
-              <li>
-                <a class="site-nav__link {% if request.endpoint and request.endpoint.startswith('admin.') and 'servicio' in request.endpoint %}is-active{% endif %}"
-                   href="{{ url_for('admin.listar_servicios') }}"
-                   {% if request.endpoint and request.endpoint.startswith('admin.') and 'servicio' in request.endpoint %}aria-current="page"{% endif %}>Servicios</a>
-              </li>
-              <li>
-                <a class="site-nav__link {% if request.endpoint and request.endpoint.startswith('admin.') and 'plan' in request.endpoint %}is-active{% endif %}"
-                   href="{{ url_for('admin.listar_planes') }}"
-                   {% if request.endpoint and request.endpoint.startswith('admin.') and 'plan' in request.endpoint %}aria-current="page"{% endif %}>Planes</a>
-              </li>
-              <li>
-                <a class="site-nav__link {% if request.endpoint and request.endpoint.startswith('admin.') and 'cliente' in request.endpoint %}is-active{% endif %}"
-                   href="{{ url_for('admin.listar_clientes') }}"
-                   {% if request.endpoint and request.endpoint.startswith('admin.') and 'cliente' in request.endpoint %}aria-current="page"{% endif %}>Clientes</a>
-              </li>
-              <li>
-                <a class="site-nav__link {% if request.endpoint and request.endpoint.startswith('admin.') and 'solicitud' in request.endpoint %}is-active{% endif %}"
-                   href="{{ url_for('admin.listar_solicitudes') }}"
-                   {% if request.endpoint and request.endpoint.startswith('admin.') and 'solicitud' in request.endpoint %}aria-current="page"{% endif %}>Solicitudes</a>
-              </li>
+            {% if menu_admin %}
+              {{ nav_link('Panel', 'admin.inicio', endpoint in ('admin.inicio', 'admin.listar_facturas', 'admin.panel_reportes', 'admin.listar_auditoria')) }}
+              {{ nav_link('Servicios', 'admin.listar_servicios', endpoint.startswith('admin.') and 'servicio' in endpoint) }}
+              {{ nav_link('Planes', 'admin.listar_planes', endpoint.startswith('admin.') and 'plan' in endpoint) }}
+              {{ nav_link('Clientes', 'admin.listar_clientes', endpoint.startswith('admin.') and 'cliente' in endpoint) }}
+              {{ nav_link('Solicitudes', 'admin.listar_solicitudes', endpoint.startswith('admin.') and 'solicitud' in endpoint) }}
             {% else %}
-              <li>
-                <a class="site-nav__link {% if request.endpoint == 'main.inicio' %}is-active{% endif %}"
-                   href="{{ url_for('main.inicio') }}"
-                   {% if request.endpoint == 'main.inicio' %}aria-current="page"{% endif %}>Inicio</a>
-              </li>
+              {{ nav_link('Inicio', 'main.inicio', endpoint == 'main.inicio') }}
               {% if session.get('id_cliente') %}
-                <li>
-                  <a class="site-nav__link {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}is-active{% endif %}"
-                     href="{{ url_for('cuenta.mi_informacion') }}"
-                     {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}aria-current="page"{% endif %}>Mi información</a>
-                </li>
+                {{ nav_link('Mi información', 'cuenta.mi_informacion', endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion')) }}
+                {{ nav_link('Solicitudes', 'cuenta.solicitudes', endpoint.startswith('cuenta.solicitud')) }}
+                {{ nav_link('Reclamos', 'cuenta.reclamos', endpoint.startswith('cuenta.reclamo')) }}
               {% else %}
-                <li>
-                  <a class="site-nav__link {% if request.endpoint == 'cliente.registro' %}is-active{% endif %}"
-                     href="{{ url_for('cliente.registro') }}"
-                     {% if request.endpoint == 'cliente.registro' %}aria-current="page"{% endif %}>Registro</a>
-                </li>
+                {{ nav_link('Registro', 'cliente.registro', endpoint == 'cliente.registro') }}
               {% endif %}
             {% endif %}
           </ul>
         </nav>
 
-        <div class="site-nav__actions">
-          {% if session.get('es_admin') %}
+        {% if menu_admin %}
+          <div class="site-nav__actions">
             <a class="site-nav__site" href="{{ url_for('main.inicio') }}">Ver sitio</a>
             <form action="{{ url_for('auth.logout') }}" method="post">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -92,29 +71,21 @@
                 <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Salir
               </button>
             </form>
-          {% else %}
-            {% if session.get('id_cliente') %}
-              <a class="btn btn-outline-ink btn-nav {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}is-active{% endif %}"
-                 href="{{ url_for('cuenta.mi_informacion') }}"
-                 {% if request.endpoint in ('cuenta.mi_plan', 'cuenta.mi_informacion') %}aria-current="page"{% endif %}>
-                <i class="bi bi-person-circle" aria-hidden="true"></i> Mi cuenta
-              </a>
-            {% else %}
-              <a class="btn btn-outline-ink btn-nav {% if request.endpoint == 'cuenta.ingresar' %}is-active{% endif %}"
-                 href="{{ url_for('cuenta.ingresar') }}"
-                 {% if request.endpoint == 'cuenta.ingresar' %}aria-current="page"{% endif %}>
-                <i class="bi bi-person-circle" aria-hidden="true"></i> Ingresar como cliente
-              </a>
-              {% if not session.get('id_cliente') %}
-                <a class="btn btn-outline-ink btn-nav {% if request.endpoint == 'auth.login' %}is-active{% endif %}"
-                   href="{{ url_for('auth.login') }}"
-                   {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>
-                  <i class="bi bi-shield-lock" aria-hidden="true"></i> Administración
-                </a>
-              {% endif %}
-            {% endif %}
-          {% endif %}
-        </div>
+          </div>
+        {% elif not session.get('id_cliente') %}
+          <div class="site-nav__actions">
+            <a class="btn btn-outline-ink btn-nav {% if endpoint == 'cuenta.ingresar' %}is-active{% endif %}"
+               href="{{ url_for('cuenta.ingresar') }}"
+               {% if endpoint == 'cuenta.ingresar' %}aria-current="page"{% endif %}>
+              <i class="bi bi-person-circle" aria-hidden="true"></i> Ingresar como cliente
+            </a>
+            <a class="btn btn-outline-ink btn-nav {% if endpoint == 'auth.login' %}is-active{% endif %}"
+               href="{{ url_for('auth.login') }}"
+               {% if endpoint == 'auth.login' %}aria-current="page"{% endif %}>
+              <i class="bi bi-shield-lock" aria-hidden="true"></i> Administración
+            </a>
+          </div>
+        {% endif %}
       </div>
     </div>
   </header>

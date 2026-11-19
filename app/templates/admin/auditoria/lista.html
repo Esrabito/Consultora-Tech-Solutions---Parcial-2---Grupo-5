@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/tags.html" import estado %}
 
 {% block titulo %}Auditoría de integraciones{% endblock %}
 
@@ -16,17 +17,22 @@
   </div>
 </header>
 
-<form method="get" class="mb-4">
-  <label for="sistema" class="form-label">Sistema</label>
-  <div class="d-flex gap-2">
-    <select id="sistema" name="sistema" class="form-select" style="max-width: 16rem">
-      <option value="">Todos</option>
+<form method="get" class="form-sheet filter-bar" aria-label="Filtrar registros">
+  <div>
+    <label for="sistema" class="form-label">Sistema</label>
+    <select id="sistema" name="sistema" class="form-select">
+      <option value="">Todos los sistemas</option>
       {% for nombre in sistemas %}
         <option value="{{ nombre }}" {% if nombre == sistema %}selected{% endif %}>{{ nombre }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="btn btn-outline-ink">Filtrar</button>
   </div>
+  <button type="submit" class="btn btn-outline-ink">
+    <i class="bi bi-funnel" aria-hidden="true"></i> Filtrar
+  </button>
+  {% if sistema %}
+    <a href="{{ url_for('admin.listar_auditoria') }}" class="btn btn-outline-secondary">Quitar filtro</a>
+  {% endif %}
 </form>
 
 {% if registros %}
@@ -45,11 +51,11 @@
       <tbody>
         {% for registro in registros %}
           <tr>
-            <td data-label="Fecha">{{ registro.fecha.strftime("%d/%m/%Y %H:%M:%S") }}</td>
+            <td class="cell-tabular" data-label="Fecha">{{ registro.fecha.strftime("%d/%m/%Y %H:%M:%S") }}</td>
             <td class="cell-main" data-label="Sistema">{{ registro.sistema }}</td>
             <td data-label="Operación">{{ registro.operacion }}</td>
-            <td data-label="Resultado"><span class="tag">{{ registro.resultado }}</span></td>
-            <td data-label="Detalle">{{ registro.detalle }}</td>
+            <td data-label="Resultado">{{ estado(registro.resultado) }}</td>
+            <td data-label="Detalle">{{ registro.detalle or "—" }}</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -58,8 +64,13 @@
 {% else %}
   <div class="empty-state">
     <span class="empty-state__icon" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
-    <h2>Todavía no hay registros</h2>
-    <p>Aparecen cuando el sistema se comunica con VeriCheck, CRMMax, PagoNet, NotiSys o AnalytixPro.</p>
+    {% if sistema %}
+      <h2>No hay registros para {{ sistema }}</h2>
+      <a href="{{ url_for('admin.listar_auditoria') }}" class="btn btn-outline-ink">Ver todos los registros</a>
+    {% else %}
+      <h2>Todavía no hay registros</h2>
+      <p>Aparecen cuando el sistema se comunica con VeriCheck, CRMMax, PagoNet, NotiSys o AnalytixPro.</p>
+    {% endif %}
   </div>
 {% endif %}
 {% endblock %}

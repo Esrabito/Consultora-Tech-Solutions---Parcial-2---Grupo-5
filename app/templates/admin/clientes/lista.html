@@ -24,7 +24,7 @@
 </header>
 
 {% if clientes %}
-  <div class="data-sheet">
+  <div class="data-sheet data-sheet--wide">
     <table class="data-table">
       <caption class="visually-hidden">Clientes registrados y su plan</caption>
       <thead>
@@ -43,9 +43,9 @@
           <tr>
             <td class="cell-id" data-label="N.º">{{ cliente.id_cliente }}</td>
             <td class="cell-main" data-label="Nombre">{{ cliente.nombre }}</td>
-            <td data-label="DNI">{{ cliente.dni }}</td>
+            <td class="cell-tabular" data-label="DNI">{{ cliente.dni }}</td>
             <td data-label="Email">{{ cliente.email }}</td>
-            <td data-label="Teléfono">{{ cliente.telefono }}</td>
+            <td class="cell-tabular" data-label="Teléfono">{{ cliente.telefono }}</td>
             <td data-label="Plan"><span class="tag">{{ cliente.plan.nombre_plan }}</span></td>
             <td class="cell-actions" data-label="Acciones">
               <div class="row-actions">

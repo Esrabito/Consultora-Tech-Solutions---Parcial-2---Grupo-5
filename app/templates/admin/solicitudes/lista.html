@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/tags.html" import estado, prioridad %}
 
 {% block titulo %}Solicitudes{% endblock %}
 
@@ -24,7 +25,7 @@
 </header>
 
 {% if solicitudes %}
-  <div class="data-sheet">
+  <div class="data-sheet data-sheet--wide">
     <table class="data-table">
       <caption class="visually-hidden">Solicitudes de los clientes y su estado</caption>
       <thead>
@@ -44,11 +45,11 @@
             <td class="cell-id" data-label="N.º">{{ solicitud.id_solicitud }}</td>
             <td class="cell-main" data-label="Cliente">{{ solicitud.cliente.nombre }}</td>
             <td data-label="Tipo">{{ solicitud.tipo_modificacion }}</td>
-            <td data-label="Fecha">
+            <td class="cell-tabular" data-label="Fecha">
               {% if solicitud.fecha_creacion %}{{ solicitud.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}{% endif %}
             </td>
-            <td data-label="Prioridad">{{ solicitud.prioridad }}</td>
-            <td data-label="Estado"><span class="tag">{{ solicitud.estado }}</span></td>
+            <td data-label="Prioridad">{{ prioridad(solicitud.prioridad) }}</td>
+            <td data-label="Estado">{{ estado(solicitud.estado) }}</td>
             <td class="cell-actions" data-label="Acciones">
               <div class="row-actions">
                 <a href="{{ url_for('admin.detalle_solicitud', id_solicitud=solicitud.id_solicitud) }}"
