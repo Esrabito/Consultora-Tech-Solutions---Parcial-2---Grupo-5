@@ -100,27 +100,27 @@ run.py              punto de entrada
 | HU-06 | Gestionar planes | 6 | Hecha |
 | HU-01 | Registrar cliente (con elección de plan) | 6 | Hecha |
 | HU-25 | Validar identidad (VeriCheck) | 3 | Hecha |
-| HU-30 | Registrar clientes en CRMMax (simulado) | 2 | En testing |
+| HU-30 | Registrar clientes en CRMMax (simulado) | 2 | Hecha |
 | HU-31 | Consultar clientes registrados | 1 | Hecha |
 | HU-04 | Gestionar clientes registrados (detalle) | 8 | Hecha |
 | HU-03 | Consultar información personal | 2 | Hecha |
 | HU-05 | Consultar planes y servicios contratados | 2 | Hecha |
 | HU-08 | Solicitar modificación de plan | 2 | Hecha |
 | HU-09 | Solicitar modificación de servicio | 2 | Hecha |
-| HU-36 | Consultar solicitudes propias | — | Hecha |
-| HU-14 | Consultar solicitudes (administrador) | 1 | En testing |
-| HU-11 | Aprobar solicitud | 2 | En testing |
-| HU-12 | Rechazar solicitud | 2 | En testing |
-| HU-16 | Actualizar plan del cliente (al aprobar un cambio de plan) | — | En testing |
-| HU-15 | Generar factura por cambio de plan (PagoNet simulado) | — | En testing |
+| HU-36 | Consultar solicitudes propias | 1 | Hecha |
+| HU-14 | Consultar solicitudes (administrador) | 1 | Hecha |
+| HU-11 | Aprobar solicitud | 2 | Hecha |
+| HU-12 | Rechazar solicitud | 2 | Hecha |
+| HU-16 | Actualizar plan del cliente (al aprobar un cambio de plan) | 3 | Hecha |
+| HU-15 | Generar factura por cambio de plan (PagoNet simulado) | — | Hecha |
 | HU-32 | Consultar facturas emitidas | — | En testing |
-| HU-13 | Gestionar prioridades de solicitudes | — | En testing |
-| HU-10 | Adjuntar documentación a una solicitud | — | En testing |
-| HU-21 | Notificar cambios de estado (NotiSys simulado) | — | En testing |
-| HU-26 | Consultar cliente en CRMMax (simulado) | — | En testing |
-| HU-27 | Generar métricas diarias (AnalytixPro simulado) | — | En testing |
-| HU-28 | Consultar reportes operativos | — | En testing |
-| HU-29 | Registrar auditoría de integraciones | — | En testing |
+| HU-13 | Gestionar prioridades de solicitudes | — | Hecha |
+| HU-10 | Adjuntar documentación a una solicitud | — | Hecha |
+| HU-21 | Notificar cambios de estado (NotiSys simulado) | — | Hecha |
+| HU-26 | Consultar cliente en CRMMax (simulado) | — | Hecha |
+| HU-27 | Generar métricas diarias (AnalytixPro simulado) | — | Hecha |
+| HU-28 | Consultar reportes operativos | — | Hecha |
+| HU-29 | Registrar auditoría de integraciones | — | Hecha |
 
 Las HU de reclamos (HU-18, HU-33, HU-37, HU-20) y las de WhatsApp quedan en manos de quien las tiene asignada en el tablero. HU-17 (actualizar servicios) no se implementa: ver [docs/decisiones.md](docs/decisiones.md).
 
