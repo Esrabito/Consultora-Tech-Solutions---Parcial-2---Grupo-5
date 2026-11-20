@@ -112,17 +112,19 @@ run.py              punto de entrada
 | HU-11 | Aprobar solicitud | 2 | Hecha |
 | HU-12 | Rechazar solicitud | 2 | Hecha |
 | HU-16 | Actualizar plan del cliente (al aprobar un cambio de plan) | 3 | Hecha |
-| HU-15 | Generar factura por cambio de plan (PagoNet simulado) | — | Hecha |
-| HU-32 | Consultar facturas emitidas | — | En testing |
-| HU-13 | Gestionar prioridades de solicitudes | — | Hecha |
-| HU-10 | Adjuntar documentación a una solicitud | — | Hecha |
-| HU-21 | Notificar cambios de estado (NotiSys simulado) | — | Hecha |
-| HU-26 | Consultar cliente en CRMMax (simulado) | — | Hecha |
-| HU-27 | Generar métricas diarias (AnalytixPro simulado) | — | Hecha |
-| HU-28 | Consultar reportes operativos | — | Hecha |
-| HU-29 | Registrar auditoría de integraciones | — | Hecha |
-
-Las HU de reclamos (HU-18, HU-33, HU-37, HU-20) y las de WhatsApp quedan en manos de quien las tiene asignada en el tablero. HU-17 (actualizar servicios) no se implementa: ver [docs/decisiones.md](docs/decisiones.md).
+| HU-15 | Generar factura por cambio de plan (PagoNet simulado) | 2 | Hecha |
+| HU-32 | Consultar facturas emitidas | 1 | En testing |
+| HU-13 | Gestionar prioridades de solicitudes | 1 | Hecha |
+| HU-10 | Adjuntar documentación a una solicitud | 1 | Hecha |
+| HU-21 | Notificar cambios de estado (NotiSys simulado) | 3 | Hecha |
+| HU-26 | Consultar cliente en CRMMax (simulado) | 3 | Hecha |
+| HU-27 | Generar métricas diarias (AnalytixPro simulado) | 2 | Hecha |
+| HU-28 | Consultar reportes operativos | 1 | Hecha |
+| HU-29 | Registrar auditoría de integraciones | 6 | Hecha |
+| HU-18 | Registrar reclamo | 2 | Hecha |
+| HU-33 | Consultar reclamos de clientes (administrador) | 1 | Hecha |
+| HU-37 | Consultar reclamos propios (cliente) | 1 | Hecha |
+| HU-20 | Gestionar reclamos: actualizar estado y respuesta | 4 | Parcial |
 
 ### Sistemas externos simulados
 
@@ -163,6 +165,9 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET /admin/solicitudes/<id>` | Detalle de la solicitud | HU-14 |
 | `POST /admin/solicitudes/<id>/aprobar` | Aprueba una solicitud pendiente (comentario opcional) | HU-11 |
 | `POST /admin/solicitudes/<id>/rechazar` | Rechaza una solicitud pendiente (motivo obligatorio) | HU-12 |
+| `GET /admin/reclamos` | Lista los reclamos de todos los clientes | HU-33 |
+| `GET /admin/reclamos/<id>` | Muestra el detalle de un reclamo | HU-33 |
+| `POST /admin/reclamos/<id>/resolver` | Actualiza el estado y la respuesta del reclamo | HU-20 |
 | `GET/POST /cliente/registro` | Registro de cliente con elección de plan | HU-01 |
 | `GET/POST /cliente/ingresar` | Identificación del cliente mediante DNI y email | HU-03 / HU-05 |
 | `GET /cliente/mi-informacion` | Consulta de datos personales, plan, servicios, solicitudes y reclamos | HU-03 |
@@ -171,6 +176,9 @@ Las decisiones de diseño están en [docs/decisiones.md](docs/decisiones.md).
 | `GET/POST /cliente/solicitud-plan` | Solicita un cambio de plan indicando el nuevo plan y el motivo | HU-08 |
 | `GET/POST /cliente/solicitud-servicio` | Solicita una modificación sobre un servicio contratado | HU-09 |
 | `GET /cliente/solicitudes` | Consulta las solicitudes propias, su estado, fecha y resultado | HU-36 |
+| `GET /cliente/reclamo` | Muestra el formulario para registrar un reclamo | HU-18 |
+| `POST /cliente/reclamo` | Registra un reclamo nuevo en estado Pendiente | HU-18 |
+| `GET /cliente/reclamos` | Consulta los reclamos propios, su estado y respuesta | HU-37 |
 
 ### API REST (requiere sesión de administrador y `Content-Type: application/json`)
 
